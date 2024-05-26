@@ -7,6 +7,8 @@ public class HudConfig {
     private boolean showCoordinates = true;
     private boolean showNetherCoordinates = true;
     private boolean showBiome = true;
+    private Integer xPos = 3;
+    private Integer yPos = 3;
 
 
     private volatile static HudConfig hudConfig;
@@ -25,6 +27,24 @@ public class HudConfig {
         this.showCoordinates = newConfig.isShowCoordinates();
         this.showNetherCoordinates = newConfig.isShowNetherCoordinates();
         this.showBiome = newConfig.isShowBiome();
+        this.xPos = newConfig.getxPos();
+        this.yPos = newConfig.getyPos();
+    }
+
+    public Integer getxPos() {
+        return xPos;
+    }
+
+    public void setxPos(Integer xPos) {
+        this.xPos = xPos;
+    }
+
+    public Integer getyPos() {
+        return yPos;
+    }
+
+    public void setyPos(Integer yPos) {
+        this.yPos = yPos;
     }
 
     public boolean isShowFPS() {

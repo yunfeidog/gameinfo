@@ -2,6 +2,7 @@ package com.cxk.gameinfo.client;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.ControlFlowAware;
@@ -70,6 +71,24 @@ public class HudCommand {
             boolean state = BoolArgumentType.getBool(context, "state");
             HudConfig instance = HudConfig.getInstance();
             instance.setShowBiome(state);
+            instance.updateConfig(instance);
+            return ControlFlowAware.Command.SINGLE_SUCCESS;
+        }))));
+
+        // hud x [position: int]
+        dispatcher.register(CommandManager.literal("gameinfo").then(CommandManager.literal("x坐标").then(CommandManager.argument("position", IntegerArgumentType.integer()).executes(context -> {
+            int position = IntegerArgumentType.getInteger(context, "position");
+            HudConfig instance = HudConfig.getInstance();
+            instance.setxPos(position);
+            instance.updateConfig(instance);
+            return ControlFlowAware.Command.SINGLE_SUCCESS;
+        }))));
+
+        // hud y [position: int]
+        dispatcher.register(CommandManager.literal("gameinfo").then(CommandManager.literal("y坐标").then(CommandManager.argument("position", IntegerArgumentType.integer()).executes(context -> {
+            int position = IntegerArgumentType.getInteger(context, "position");
+            HudConfig instance = HudConfig.getInstance();
+            instance.setyPos(position);
             instance.updateConfig(instance);
             return ControlFlowAware.Command.SINGLE_SUCCESS;
         }))));

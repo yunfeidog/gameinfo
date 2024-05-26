@@ -31,8 +31,8 @@ public class HudOverlay implements HudRenderCallback {
 
             TextRenderer textRenderer = client.textRenderer;
 
-            int xPos = 3;
-            int yPos = 5;
+            int xPos = hudConfig.getxPos();
+            int yPos = hudConfig.getyPos();
 
             if (hudConfig.isShowFPS()) {
                 renderFPS(drawContext, textRenderer, xPos, yPos, client);
