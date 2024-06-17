@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -17,7 +18,8 @@ import org.jetbrains.annotations.Nullable;
 public class HudOverlay implements HudRenderCallback {
     MinecraftClient client = MinecraftClient.getInstance();
 
-    @Override
+
+
     public void onHudRender(DrawContext drawContext, float tickDelta) {
         PlayerEntity player = client.player;
         HudConfig hudConfig = HudConfig.getInstance();
@@ -70,8 +72,9 @@ public class HudOverlay implements HudRenderCallback {
 
     private void renderTimeAndDays(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, World world) {
         long timeOfDay = world.getTimeOfDay() % 24000;
-        int hours = (int) (timeOfDay / 1000);
-        int minutes = (int) ((timeOfDay % 1000) / (1000.0 / 60.0));
+        // 时间为0的时候对应的是6:00
+        int hours = (int) ((6 + (timeOfDay / 1000))%24);
+        int minutes = (int) ((timeOfDay % 1000) * 60 / 1000);
         int days = (int) (world.getTimeOfDay() / 24000);
 
         drawContext.drawTextWithShadow(textRenderer, "天数: ", xPos, yPos, 0xFFD700);
@@ -127,5 +130,10 @@ public class HudOverlay implements HudRenderCallback {
         Identifier biomeId = biomeEntry.getKey().map(RegistryKey::getValue).orElse(null);
         String biomeName = biomeId == null ? "未知生物群系" : biomeId.getPath();
         drawContext.drawTextWithShadow(textRenderer, String.format("生物群系: %s", biomeName), xPos, yPos, 0xFFFFFF);
+    }
+
+    @Override
+    public void onHudRender(DrawContext drawContext, RenderTickCounter tickCounter) {
+        onHudRender(drawContext, 0);
     }
 }
