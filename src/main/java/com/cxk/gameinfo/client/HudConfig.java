@@ -1,6 +1,7 @@
 package com.cxk.gameinfo.client;
 
 
+
 public class HudConfig {
     private boolean showFPS = true;
     private boolean showTimeAndDays = true;
@@ -10,6 +11,8 @@ public class HudConfig {
     private int color = 0x00FFFF;
     private Integer xPos = 3;
     private Integer yPos = 3;
+    private boolean remark = true;
+    private double scale = 0.5;
 
 
     private volatile static HudConfig hudConfig;
@@ -31,7 +34,24 @@ public class HudConfig {
         this.xPos = newConfig.getxPos();
         this.yPos = newConfig.getyPos();
         this.color = newConfig.getColor();
+        this.remark = newConfig.isRemark();
+        this.scale = newConfig.getScale();
+    }
 
+    public double getScale() {
+        return scale;
+    }
+
+    public void setScale(double scale) {
+        this.scale = scale;
+    }
+
+    public boolean isRemark() {
+        return remark;
+    }
+
+    public void setRemark(boolean remark) {
+        this.remark = remark;
     }
 
     public int getColor() {

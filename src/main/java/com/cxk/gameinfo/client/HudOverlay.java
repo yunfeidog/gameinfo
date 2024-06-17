@@ -64,8 +64,26 @@ public class HudOverlay implements HudRenderCallback {
                 renderBiome(drawContext, textRenderer, xPos, yPos, pos, world);
                 yPos += 10;
             }
+
+            if (hudConfig.isRemark()) {
+                // 这里放到右上角，而不是左上角，不要用原来的xPos，yPos
+                String title1 = "作者:yunfei";
+                String title2 = "gameinfo偏牧定制版-禁止转载";
+                float scale = (float) hudConfig.getScale();
+                drawContext.getMatrices().push();
+                drawContext.getMatrices().scale(scale, scale, scale);
+                // 靠右边
+                int rightX = (int) (client.getWindow().getScaledWidth() / scale - textRenderer.getWidth(title1));
+                int rightX2 = (int) (client.getWindow().getScaledWidth() / scale - textRenderer.getWidth(title2));
+                int rightY = 2;
+                drawContext.drawTextWithShadow(textRenderer, title1, rightX, rightY, color);
+                rightY += textRenderer.fontHeight;
+                drawContext.drawTextWithShadow(textRenderer, title2, rightX2, rightY, color);
+                drawContext.getMatrices().pop();
+            }
         }
     }
+
 
     private void renderFPS(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, MinecraftClient client) {
         int fps = client.fpsDebugString.equals("unspecified") ? -1 : Integer.parseInt(client.fpsDebugString.split(" ")[0]);

@@ -2,6 +2,7 @@ package com.cxk.gameinfo.client;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -102,6 +103,24 @@ public class HudCommand {
             color = "0x" + color;
             int color1 = Integer.decode(color);
             instance.setColor(color1);
+            instance.updateConfig(instance);
+            return ControlFlowAware.Command.SINGLE_SUCCESS;
+        }))));
+
+        //hud  标注 [state: bool]
+        dispatcher.register(CommandManager.literal("gameinfo").then(CommandManager.literal("标注").then(CommandManager.argument("state", BoolArgumentType.bool()).executes(context -> {
+            boolean state = BoolArgumentType.getBool(context, "state");
+            HudConfig instance = HudConfig.getInstance();
+            instance.setRemark(state);
+            instance.updateConfig(instance);
+            return ControlFlowAware.Command.SINGLE_SUCCESS;
+        }))));
+
+        //hud 大小 [scale: double]
+        dispatcher.register(CommandManager.literal("gameinfo").then(CommandManager.literal("大小").then(CommandManager.argument("scale", DoubleArgumentType.doubleArg()).executes(context -> {
+            double scale = DoubleArgumentType.getDouble(context, "scale");
+            HudConfig instance = HudConfig.getInstance();
+            instance.setScale(scale);
             instance.updateConfig(instance);
             return ControlFlowAware.Command.SINGLE_SUCCESS;
         }))));
