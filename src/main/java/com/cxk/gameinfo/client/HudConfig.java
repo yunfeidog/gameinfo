@@ -6,7 +6,8 @@ public class HudConfig {
     private boolean showTimeAndDays = true;
     private boolean showCoordinates = true;
     private boolean showNetherCoordinates = true;
-    private boolean showBiome = true;
+    private boolean showBiome = false;
+    private int color = 0x00FFFF;
     private Integer xPos = 3;
     private Integer yPos = 3;
 
@@ -29,6 +30,16 @@ public class HudConfig {
         this.showBiome = newConfig.isShowBiome();
         this.xPos = newConfig.getxPos();
         this.yPos = newConfig.getyPos();
+        this.color = newConfig.getColor();
+
+    }
+
+    public int getColor() {
+        return color;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
     }
 
     public Integer getxPos() {

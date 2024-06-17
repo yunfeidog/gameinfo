@@ -3,6 +3,7 @@ package com.cxk.gameinfo.client;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.ControlFlowAware;
@@ -89,6 +90,18 @@ public class HudCommand {
             int position = IntegerArgumentType.getInteger(context, "position");
             HudConfig instance = HudConfig.getInstance();
             instance.setyPos(position);
+            instance.updateConfig(instance);
+            return ControlFlowAware.Command.SINGLE_SUCCESS;
+        }))));
+
+        // hud color [color: string]
+        dispatcher.register(CommandManager.literal("gameinfo").then(CommandManager.literal("颜色").then(CommandManager.argument("color", StringArgumentType.string()).executes(context -> {
+            String color = StringArgumentType.getString(context, "color");
+            HudConfig instance = HudConfig.getInstance();
+            // 转为16进制 color:	FFB6C1
+            color = "0x" + color;
+            int color1 = Integer.decode(color);
+            instance.setColor(color1);
             instance.updateConfig(instance);
             return ControlFlowAware.Command.SINGLE_SUCCESS;
         }))));

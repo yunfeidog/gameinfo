@@ -15,9 +15,11 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import org.jetbrains.annotations.Nullable;
 
+
 public class HudOverlay implements HudRenderCallback {
     MinecraftClient client = MinecraftClient.getInstance();
 
+    private int color = 0;
 
 
     public void onHudRender(DrawContext drawContext, float tickDelta) {
@@ -35,6 +37,8 @@ public class HudOverlay implements HudRenderCallback {
 
             int xPos = hudConfig.getxPos();
             int yPos = hudConfig.getyPos();
+            int color1 = hudConfig.getColor();
+            this.color = color1;
 
             if (hudConfig.isShowFPS()) {
                 renderFPS(drawContext, textRenderer, xPos, yPos, client);
@@ -65,7 +69,7 @@ public class HudOverlay implements HudRenderCallback {
 
     private void renderFPS(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, MinecraftClient client) {
         int fps = client.fpsDebugString.equals("unspecified") ? -1 : Integer.parseInt(client.fpsDebugString.split(" ")[0]);
-        drawContext.drawTextWithShadow(textRenderer, "FPS:  ", xPos, yPos, 0xFFD700);
+        drawContext.drawTextWithShadow(textRenderer, "FPS:  ", xPos, yPos, color);
         int width = textRenderer.getWidth("FPS: ");
         drawContext.drawTextWithShadow(textRenderer, fps == -1 ? "未知" : String.valueOf(fps), xPos + width, yPos, 0xFFFFFF);
     }
@@ -73,23 +77,23 @@ public class HudOverlay implements HudRenderCallback {
     private void renderTimeAndDays(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, World world) {
         long timeOfDay = world.getTimeOfDay() % 24000;
         // 时间为0的时候对应的是6:00
-        int hours = (int) ((6 + (timeOfDay / 1000))%24);
+        int hours = (int) ((6 + (timeOfDay / 1000)) % 24);
         int minutes = (int) ((timeOfDay % 1000) * 60 / 1000);
         int days = (int) (world.getTimeOfDay() / 24000);
 
-        drawContext.drawTextWithShadow(textRenderer, "天数: ", xPos, yPos, 0xFFD700);
+        drawContext.drawTextWithShadow(textRenderer, "天数: ", xPos, yPos, color);
         int width = textRenderer.getWidth("天数: ");
         drawContext.drawTextWithShadow(textRenderer, String.valueOf(days), xPos + width, yPos, 0xFFFFFF);
 
         width += textRenderer.getWidth(String.valueOf(days)) + textRenderer.getWidth("  时间: ");
-        drawContext.drawTextWithShadow(textRenderer, "  时间: ", xPos + textRenderer.getWidth("天数: ") + textRenderer.getWidth(String.valueOf(days)), yPos, 0xFFD700);
+        drawContext.drawTextWithShadow(textRenderer, "  时间: ", xPos + textRenderer.getWidth("天数: ") + textRenderer.getWidth(String.valueOf(days)), yPos, color);
         drawContext.drawTextWithShadow(textRenderer, String.format("%02d:%02d", hours, minutes), xPos + width, yPos, 0xFFFFFF);
     }
 
     private void renderCoordinates(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, BlockPos pos, World world) {
         String directionString = getDirectionString();
         String xyz = String.format("%d %d %d - %s", pos.getX(), pos.getY(), pos.getZ(), directionString);
-        drawContext.drawTextWithShadow(textRenderer, "XYZ: ", xPos, yPos, 0xFFD700);
+        drawContext.drawTextWithShadow(textRenderer, "XYZ: ", xPos, yPos, color);
         int width = textRenderer.getWidth("XYZ: ");
         drawContext.drawTextWithShadow(textRenderer, xyz, xPos + width, yPos, 0xFFFFFF);
     }
@@ -120,7 +124,7 @@ public class HudOverlay implements HudRenderCallback {
         } else if (world.getRegistryKey().getValue().equals(World.NETHER.getValue())) {
             n_xz = String.format("%d %d", x * 8, z * 8);
         }
-        drawContext.drawTextWithShadow(textRenderer, "N-XZ: ", xPos, yPos, 0xFFD700);
+        drawContext.drawTextWithShadow(textRenderer, "N-XZ: ", xPos, yPos, color);
         int width = textRenderer.getWidth("N-XZ: ");
         drawContext.drawTextWithShadow(textRenderer, n_xz, xPos + width, yPos, 0xFFFFFF);
     }
