@@ -107,7 +107,7 @@ public class HudCommand {
             return ControlFlowAware.Command.SINGLE_SUCCESS;
         }))));
 
-        //hud  标注 [state: bool]
+        // hud  标注 [state: bool]
         dispatcher.register(CommandManager.literal("gameinfo").then(CommandManager.literal("标注").then(CommandManager.argument("state", BoolArgumentType.bool()).executes(context -> {
             boolean state = BoolArgumentType.getBool(context, "state");
             HudConfig instance = HudConfig.getInstance();
@@ -116,12 +116,25 @@ public class HudCommand {
             return ControlFlowAware.Command.SINGLE_SUCCESS;
         }))));
 
-        //hud 大小 [scale: double]
+        // hud 大小 [scale: double]
         dispatcher.register(CommandManager.literal("gameinfo").then(CommandManager.literal("大小").then(CommandManager.argument("scale", DoubleArgumentType.doubleArg()).executes(context -> {
             double scale = DoubleArgumentType.getDouble(context, "scale");
             HudConfig instance = HudConfig.getInstance();
             instance.setScale(scale);
             instance.updateConfig(instance);
+            return ControlFlowAware.Command.SINGLE_SUCCESS;
+        }))));
+
+        // hud enable [state: bool]
+        dispatcher.register(CommandManager.literal("gameinfo").then(CommandManager.literal("启用").then(CommandManager.argument("state", BoolArgumentType.bool()).executes(context -> {
+            boolean state = BoolArgumentType.getBool(context, "state");
+            HudConfig hudConfig = HudConfig.getInstance();
+            hudConfig.setShowFPS(state);
+            hudConfig.setShowTimeAndDays(state);
+            hudConfig.setShowCoordinates(state);
+            hudConfig.setShowNetherCoordinates(state);
+            hudConfig.setShowBiome(state);
+            hudConfig.updateConfig(hudConfig);
             return ControlFlowAware.Command.SINGLE_SUCCESS;
         }))));
     }
