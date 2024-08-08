@@ -86,10 +86,20 @@ public class HudOverlay implements HudRenderCallback {
 
 
     private void renderFPS(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, MinecraftClient client) {
-        int fps = client.fpsDebugString.equals("unspecified") ? -1 : Integer.parseInt(client.fpsDebugString.split(" ")[0]);
+        int fps = "unspecified".equals(client.fpsDebugString) ? -1 : Integer.parseInt(client.fpsDebugString.split(" ")[0]);
         drawContext.drawTextWithShadow(textRenderer, "FPS:  ", xPos, yPos, color);
         int width = textRenderer.getWidth("FPS: ");
-        drawContext.drawTextWithShadow(textRenderer, fps == -1 ? "未知" : String.valueOf(fps), xPos + width, yPos, 0xFFFFFF);
+        width += textRenderer.getWidth(" ");
+        drawContext.drawTextWithShadow(textRenderer, fps == -1 ? "未知" : String.valueOf(fps), width, yPos, 0xFFFFFF);
+
+        // 渲染版本号 版本：1.21
+        width += textRenderer.getWidth(String.valueOf(fps));
+        String version = "版本: ";
+        drawContext.drawTextWithShadow(textRenderer, version, xPos + width, yPos, color);
+        width += textRenderer.getWidth(version);
+        drawContext.drawTextWithShadow(textRenderer, "1.21", xPos + width, yPos, 0xFFFFFF);
+
+
     }
 
     private void renderTimeAndDays(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, World world) {
