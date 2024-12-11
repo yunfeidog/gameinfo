@@ -1,10 +1,13 @@
 package com.cxk.gameinfo.client;
 
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -14,13 +17,40 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import org.jetbrains.annotations.Nullable;
-
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import org.lwjgl.glfw.GLFW;
 
 public class HudOverlay implements HudRenderCallback {
     MinecraftClient client = MinecraftClient.getInstance();
 
     private int color = 0;
 
+    private static final KeyBinding toggleHudKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        "key.gameinfo.toggleHud", // The translation key of the keybinding's name
+        InputUtil.Type.KEYSYM, // The type of the keybinding, KEYSYM for keyboard, MOUSE for mouse.
+        GLFW.GLFW_KEY_F1, // The keycode of the key
+        "category.gameinfo" // The translation key of the keybinding's category.
+    ));
+
+    public HudOverlay() {
+        // Register the key press event
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            while (toggleHudKey.wasPressed()) {
+                toggleHudVisibility();
+            }
+        });
+    }
+
+    private void toggleHudVisibility() {
+        HudConfig hudConfig = HudConfig.getInstance();
+        boolean newState = !hudConfig.isShowFPS(); // Assuming all states are the same
+        hudConfig.setShowFPS(newState);
+        hudConfig.setShowTimeAndDays(newState);
+        hudConfig.setShowCoordinates(newState);
+        hudConfig.setShowNetherCoordinates(newState);
+        hudConfig.setShowBiome(newState);
+        hudConfig.updateConfig(hudConfig);
+    }
 
     public void onHudRender(DrawContext drawContext, float tickDelta) {
         PlayerEntity player = client.player;
@@ -37,8 +67,7 @@ public class HudOverlay implements HudRenderCallback {
 
             int xPos = hudConfig.getxPos();
             int yPos = hudConfig.getyPos();
-            int color1 = hudConfig.getColor();
-            this.color = color1;
+            this.color = hudConfig.getColor();
 
             if (hudConfig.isShowFPS()) {
                 renderFPS(drawContext, textRenderer, xPos, yPos, client);
@@ -67,19 +96,30 @@ public class HudOverlay implements HudRenderCallback {
 
             if (hudConfig.isRemark()) {
                 // 这里放到右上角，而不是左上角，不要用原来的xPos，yPos
-                String title1 = "作者:yunfei";
-                String title2 = "gameinfo偏牧定制版-禁止转载";
-                float scale = (float) hudConfig.getScale();
-                drawContext.getMatrices().push();
-                drawContext.getMatrices().scale(scale, scale, scale);
+                // String title1 = "作者:yunfei";
+                // String title2 = "gameinfo偏牧定制版-禁止转载";
+
+                String title1 = "版本：";// 蓝色
+                String title2 = "1.21";// 白色
+                int rightX = client.getWindow().getScaledWidth() - textRenderer.getWidth("版本：1.21") - 2;
+                drawContext.drawTextWithShadow(textRenderer, title1, rightX, 2, color);
+                rightX += textRenderer.getWidth(title1);
+                drawContext.drawTextWithShadow(textRenderer, title2, rightX, 2, 0xFFFFFF);
+
+
+                // float scale = (float) hudConfig.getScale();
+                // drawContext.getMatrices().push();
+                // drawContext.getMatrices().scale(scale, scale, scale);
+                // int rightX = client.getWindow().getScaledWidth() - textRenderer.getWidth("版本：") - 2;
+                // int rightX2 = client.getWindow().getScaledWidth() - textRenderer.getWidth(title2) - 2;
                 // 靠右边
-                int rightX = (int) (client.getWindow().getScaledWidth() / scale - textRenderer.getWidth(title1));
-                int rightX2 = (int) (client.getWindow().getScaledWidth() / scale - textRenderer.getWidth(title2));
-                int rightY = 2;
-                drawContext.drawTextWithShadow(textRenderer, title1, rightX, rightY, color);
-                rightY += textRenderer.fontHeight;
-                drawContext.drawTextWithShadow(textRenderer, title2, rightX2, rightY, color);
-                drawContext.getMatrices().pop();
+                // int rightX = (int) (client.getWindow().getScaledWidth() / scale - textRenderer.getWidth(title1));
+                // int rightX2 = (int) (client.getWindow().getScaledWidth() / scale - textRenderer.getWidth(title2));
+                // int rightY = 2;
+                // drawContext.drawTextWithShadow(textRenderer, title1, rightX, rightY, color);
+                // rightY += textRenderer.fontHeight;
+                // drawContext.drawTextWithShadow(textRenderer, title2, rightX2, rightY, color);
+                // drawContext.getMatrices().pop();
             }
         }
     }
@@ -91,15 +131,13 @@ public class HudOverlay implements HudRenderCallback {
         int width = textRenderer.getWidth("FPS: ");
         width += textRenderer.getWidth(" ");
         drawContext.drawTextWithShadow(textRenderer, fps == -1 ? "未知" : String.valueOf(fps), width, yPos, 0xFFFFFF);
-
-        // 渲染版本号 版本：1.21
-        width += textRenderer.getWidth(String.valueOf(fps));
-        String version = "版本: ";
-        drawContext.drawTextWithShadow(textRenderer, version, xPos + width, yPos, color);
-        width += textRenderer.getWidth(version);
-        drawContext.drawTextWithShadow(textRenderer, "1.21", xPos + width, yPos, 0xFFFFFF);
-
-
+        // // 渲染版本号 版本：1.21
+        // width += textRenderer.getWidth(String.valueOf(fps));
+        // width += textRenderer.getWidth(" ");
+        // String version = "版本: ";
+        // drawContext.drawTextWithShadow(textRenderer, version, xPos + width, yPos, color);
+        // width += textRenderer.getWidth(version);
+        // drawContext.drawTextWithShadow(textRenderer, "1.21", xPos + width, yPos, 0xFFFFFF);
     }
 
     private void renderTimeAndDays(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, World world) {

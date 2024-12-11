@@ -1,7 +1,6 @@
 package com.cxk.gameinfo.client;
 
 
-
 public class HudConfig {
     private boolean showFPS = true;
     private boolean showTimeAndDays = true;
@@ -15,7 +14,7 @@ public class HudConfig {
     private double scale = 0.5;
 
 
-    private volatile static HudConfig hudConfig;
+    static HudConfig hudConfig = new HudConfig();
 
     public static HudConfig getInstance() {
         if (hudConfig == null) {
@@ -116,10 +115,6 @@ public class HudConfig {
 
     public void setShowBiome(boolean showBiome) {
         this.showBiome = showBiome;
-    }
-
-    public static HudConfig getHudConfig() {
-        return hudConfig;
     }
 
     public static void setHudConfig(HudConfig hudConfig) {

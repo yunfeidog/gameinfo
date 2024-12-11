@@ -5,31 +5,12 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.ControlFlowAware;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
 
 public class HudCommand {
-    public static void register() {
-        LiteralArgumentBuilder<ServerCommandSource> command = CommandManager.literal("hud");
-
-        command.then(CommandManager.literal("fps")).then(CommandManager.argument("show", BoolArgumentType.bool()).executes(context -> {
-            boolean showFPS = BoolArgumentType.getBool(context, "show");
-            HudConfig instance = HudConfig.getInstance();
-            instance.setShowFPS(showFPS);
-            instance.updateConfig(instance);
-            // 显示设置结果
-            if (showFPS) {
-                context.getSource().sendMessage(Text.of("Show FPS: true"));
-            } else {
-                context.getSource().sendMessage(Text.of("Show FPS: false"));
-            }
-            return 1;
-        }));
-    }
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
         // hud fps [state: bool]
