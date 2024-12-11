@@ -2,26 +2,17 @@ package com.cxk.gameinfo.client;
 
 
 public class HudConfig {
-    private boolean showFPS = true;
-    private boolean showTimeAndDays = true;
-    private boolean showCoordinates = true;
-    private boolean showNetherCoordinates = true;
-    private boolean showBiome = false;
-    private int color = 0x00FFFF;
-    private Integer xPos = 3;
-    private Integer yPos = 3;
-    private boolean remark = true;
-    private double scale = 0.5;
+    public boolean showFPS = true; // 是否显示FPS
+    public boolean showTimeAndDays = true; // 是否显示时间
+    public boolean showCoordinates = true; // 是否显示坐标
+    public boolean showNetherCoordinates = true; // 是否显示下届坐标
+    public boolean showBiome = false; // 是否显示群系
+    public int color = 0x00FFFF; // 文字颜色
+    public Integer xPos = 3; // x 坐标
+    public Integer yPos = 3; // y 坐标
+    public boolean remark = true; // 是否显示备注
+    public double scale = 0.5; // 文字
 
-
-    static HudConfig hudConfig = new HudConfig();
-
-    public static HudConfig getInstance() {
-        if (hudConfig == null) {
-            hudConfig = new HudConfig();
-        }
-        return hudConfig;
-    }
 
     // 在 HudConfig 类中添加一个方法来更新配置
     public void updateConfig(HudConfig newConfig) {
@@ -117,7 +108,4 @@ public class HudConfig {
         this.showBiome = showBiome;
     }
 
-    public static void setHudConfig(HudConfig hudConfig) {
-        HudConfig.hudConfig = hudConfig;
-    }
 }

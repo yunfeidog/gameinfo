@@ -1,5 +1,7 @@
 package com.cxk.gameinfo.client;
 
+import com.cxk.gameinfo.GameinfoClient;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
@@ -17,7 +19,6 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import org.jetbrains.annotations.Nullable;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import org.lwjgl.glfw.GLFW;
 
 public class HudOverlay implements HudRenderCallback {
@@ -25,11 +26,14 @@ public class HudOverlay implements HudRenderCallback {
 
     private int color = 0;
 
+    // 是否开启全部展示
+    public boolean isShowAll = false;
+
     private static final KeyBinding toggleHudKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-        "key.gameinfo.toggleHud", // The translation key of the keybinding's name
-        InputUtil.Type.KEYSYM, // The type of the keybinding, KEYSYM for keyboard, MOUSE for mouse.
-        GLFW.GLFW_KEY_F1, // The keycode of the key
-        "category.gameinfo" // The translation key of the keybinding's category.
+            "key.gameinfo.toggleHud", // The translation key of the keybinding's name
+            InputUtil.Type.KEYSYM, // The type of the keybinding, KEYSYM for keyboard, MOUSE for mouse.
+            GLFW.GLFW_KEY_F1, // The keycode of the key
+            "category.gameinfo" // The translation key of the keybinding's category.
     ));
 
     public HudOverlay() {
@@ -42,19 +46,28 @@ public class HudOverlay implements HudRenderCallback {
     }
 
     private void toggleHudVisibility() {
-        HudConfig hudConfig = HudConfig.getInstance();
-        boolean newState = !hudConfig.isShowFPS(); // Assuming all states are the same
-        hudConfig.setShowFPS(newState);
-        hudConfig.setShowTimeAndDays(newState);
-        hudConfig.setShowCoordinates(newState);
-        hudConfig.setShowNetherCoordinates(newState);
-        hudConfig.setShowBiome(newState);
-        hudConfig.updateConfig(hudConfig);
+        HudConfig hudConfig = GameinfoClient.hudConfig;
+        hudConfig.remark = isShowAll;
+        hudConfig.showFPS = isShowAll;
+        hudConfig.showTimeAndDays = isShowAll;
+        hudConfig.showCoordinates = isShowAll;
+        hudConfig.showNetherCoordinates = isShowAll;
+        hudConfig.showBiome = isShowAll;
+        isShowAll = !isShowAll;
+        //
+        // boolean newState = !hudConfig.isShowFPS(); // Assuming all states are the same
+        // hudConfig.setShowFPS(newState);
+        // hudConfig.setShowTimeAndDays(newState);
+        // hudConfig.setShowCoordinates(newState);
+        // hudConfig.setShowNetherCoordinates(newState);
+        // hudConfig.setShowBiome(newState);
+        // hudConfig.updateConfig(hudConfig);
+        //
     }
 
     public void onHudRender(DrawContext drawContext, float tickDelta) {
         PlayerEntity player = client.player;
-        HudConfig hudConfig = HudConfig.getInstance();
+        HudConfig hudConfig = GameinfoClient.hudConfig;
 
         if (player != null) {
             World world = player.getEntityWorld();
