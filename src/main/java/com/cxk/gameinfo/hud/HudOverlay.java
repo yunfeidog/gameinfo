@@ -28,7 +28,7 @@ public class HudOverlay implements HudRenderCallback {
     private int color = 0;
 
     // 是否开启全部展示
-    public boolean isShowAll = false;
+    public boolean isShowAll = true;
 
     private static final KeyBinding toggleHudKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
             "key.gameinfo.toggleHud",
@@ -46,13 +46,8 @@ public class HudOverlay implements HudRenderCallback {
     }
 
     private void toggleHudVisibility() {
-        GameInfoConfig gameInfoConfig = GameinfoClient.config;
-        gameInfoConfig.remark = isShowAll;
-        gameInfoConfig.showFPS = isShowAll;
-        gameInfoConfig.showTimeAndDays = isShowAll;
-        gameInfoConfig.showCoordinates = isShowAll;
-        gameInfoConfig.showNetherCoordinates = isShowAll;
-        gameInfoConfig.showBiome = isShowAll;
+        GameInfoConfig config = GameinfoClient.config;
+        config.closeGameInfo(isShowAll);
         isShowAll = !isShowAll;
     }
 
