@@ -18,7 +18,7 @@ public class GameInfoConfig {
     public boolean remark = true; // 是否显示备注
     public double scale = 0.5; // 文字
 
-    private static final String CONFIG_FILE = "gameinfo.properties";
+    private static final String CONFIG_FILE = "config" + File.separator + "gameinfo.properties";
 
     /**
      * @param flag true代表关闭，false代表开启

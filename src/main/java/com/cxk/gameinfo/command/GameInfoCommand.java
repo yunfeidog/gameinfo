@@ -20,6 +20,7 @@ public class GameInfoCommand {
             boolean state = BoolArgumentType.getBool(context, "state");
             GameInfoConfig config = GameinfoClient.config;
             config.showFPS = state;
+            config.saveConfig();
             return ControlFlowAware.Command.SINGLE_SUCCESS;
         }))));
 
@@ -28,6 +29,7 @@ public class GameInfoCommand {
             boolean state = BoolArgumentType.getBool(context, "state");
             GameInfoConfig config = GameinfoClient.config;
             config.showTimeAndDays = state;
+            config.saveConfig();
             return ControlFlowAware.Command.SINGLE_SUCCESS;
         }))));
 
@@ -36,6 +38,7 @@ public class GameInfoCommand {
             boolean state = BoolArgumentType.getBool(context, "state");
             GameInfoConfig config = GameinfoClient.config;
             config.showCoordinates = state;
+            config.saveConfig();
             return ControlFlowAware.Command.SINGLE_SUCCESS;
         }))));
 
@@ -44,6 +47,7 @@ public class GameInfoCommand {
             boolean state = BoolArgumentType.getBool(context, "state");
             GameInfoConfig config = GameinfoClient.config;
             config.showNetherCoordinates = state;
+            config.saveConfig();
             return ControlFlowAware.Command.SINGLE_SUCCESS;
         }))));
 
@@ -52,6 +56,7 @@ public class GameInfoCommand {
             boolean state = BoolArgumentType.getBool(context, "state");
             GameInfoConfig config = GameinfoClient.config;
             config.showBiome = state;
+            config.saveConfig();
             return ControlFlowAware.Command.SINGLE_SUCCESS;
         }))));
 
@@ -60,6 +65,7 @@ public class GameInfoCommand {
             int position = IntegerArgumentType.getInteger(context, "position");
             GameInfoConfig config = GameinfoClient.config;
             config.xPos = position;
+            config.saveConfig();
             return ControlFlowAware.Command.SINGLE_SUCCESS;
         }))));
 
@@ -68,6 +74,7 @@ public class GameInfoCommand {
             int position = IntegerArgumentType.getInteger(context, "position");
             GameInfoConfig config = GameinfoClient.config;
             config.yPos = position;
+            config.saveConfig();
             return ControlFlowAware.Command.SINGLE_SUCCESS;
         }))));
 
@@ -76,6 +83,7 @@ public class GameInfoCommand {
             String color = StringArgumentType.getString(context, "color");
             GameInfoConfig config = GameinfoClient.config;
             config.color = Integer.decode("0x" + color);
+            config.saveConfig();
             return ControlFlowAware.Command.SINGLE_SUCCESS;
         }))));
 
@@ -84,6 +92,7 @@ public class GameInfoCommand {
             boolean state = BoolArgumentType.getBool(context, "state");
             GameInfoConfig config = GameinfoClient.config;
             config.remark = state;
+            config.saveConfig();
             return ControlFlowAware.Command.SINGLE_SUCCESS;
         }))));
 
@@ -92,6 +101,7 @@ public class GameInfoCommand {
             double scale = DoubleArgumentType.getDouble(context, "scale");
             GameInfoConfig config = GameinfoClient.config;
             config.scale = scale;
+            config.saveConfig();
             return ControlFlowAware.Command.SINGLE_SUCCESS;
         }))));
 
