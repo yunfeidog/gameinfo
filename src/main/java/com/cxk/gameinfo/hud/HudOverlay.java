@@ -1,6 +1,7 @@
-package com.cxk.gameinfo.client;
+package com.cxk.gameinfo.hud;
 
 import com.cxk.gameinfo.GameinfoClient;
+import com.cxk.gameinfo.config.GameInfoConfig;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
@@ -30,14 +31,13 @@ public class HudOverlay implements HudRenderCallback {
     public boolean isShowAll = false;
 
     private static final KeyBinding toggleHudKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-            "key.gameinfo.toggleHud", // The translation key of the keybinding's name
-            InputUtil.Type.KEYSYM, // The type of the keybinding, KEYSYM for keyboard, MOUSE for mouse.
-            GLFW.GLFW_KEY_F1, // The keycode of the key
-            "category.gameinfo" // The translation key of the keybinding's category.
+            "key.gameinfo.toggleHud",
+            InputUtil.Type.KEYSYM,
+            GLFW.GLFW_KEY_F1,
+            "category.gameinfo"
     ));
 
     public HudOverlay() {
-        // Register the key press event
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (toggleHudKey.wasPressed()) {
                 toggleHudVisibility();
@@ -46,93 +46,60 @@ public class HudOverlay implements HudRenderCallback {
     }
 
     private void toggleHudVisibility() {
-        HudConfig hudConfig = GameinfoClient.hudConfig;
-        hudConfig.remark = isShowAll;
-        hudConfig.showFPS = isShowAll;
-        hudConfig.showTimeAndDays = isShowAll;
-        hudConfig.showCoordinates = isShowAll;
-        hudConfig.showNetherCoordinates = isShowAll;
-        hudConfig.showBiome = isShowAll;
+        GameInfoConfig gameInfoConfig = GameinfoClient.config;
+        gameInfoConfig.remark = isShowAll;
+        gameInfoConfig.showFPS = isShowAll;
+        gameInfoConfig.showTimeAndDays = isShowAll;
+        gameInfoConfig.showCoordinates = isShowAll;
+        gameInfoConfig.showNetherCoordinates = isShowAll;
+        gameInfoConfig.showBiome = isShowAll;
         isShowAll = !isShowAll;
-        //
-        // boolean newState = !hudConfig.isShowFPS(); // Assuming all states are the same
-        // hudConfig.setShowFPS(newState);
-        // hudConfig.setShowTimeAndDays(newState);
-        // hudConfig.setShowCoordinates(newState);
-        // hudConfig.setShowNetherCoordinates(newState);
-        // hudConfig.setShowBiome(newState);
-        // hudConfig.updateConfig(hudConfig);
-        //
     }
 
     public void onHudRender(DrawContext drawContext, float tickDelta) {
         PlayerEntity player = client.player;
-        HudConfig hudConfig = GameinfoClient.hudConfig;
-
+        GameInfoConfig config = GameinfoClient.config;
         if (player != null) {
             World world = player.getEntityWorld();
             BlockPos pos = player.getBlockPos();
             int x = pos.getX();
-            int y = pos.getY();
             int z = pos.getZ();
-
             TextRenderer textRenderer = client.textRenderer;
-
-            int xPos = hudConfig.getxPos();
-            int yPos = hudConfig.getyPos();
-            this.color = hudConfig.getColor();
-
-            if (hudConfig.isShowFPS()) {
+            int xPos = config.xPos;
+            int yPos = config.yPos;
+            this.color = config.color;
+            if (config.showFPS) {
                 renderFPS(drawContext, textRenderer, xPos, yPos, client);
                 yPos += 10;
             }
 
-            if (hudConfig.isShowTimeAndDays()) {
+            if (config.showTimeAndDays) {
                 renderTimeAndDays(drawContext, textRenderer, xPos, yPos, world);
                 yPos += 10;
             }
 
-            if (hudConfig.isShowCoordinates()) {
+            if (config.showCoordinates) {
                 renderCoordinates(drawContext, textRenderer, xPos, yPos, pos, world);
                 yPos += 10;
             }
 
-            if (hudConfig.isShowNetherCoordinates()) {
+            if (config.showNetherCoordinates) {
                 renderNetherCoordinates(drawContext, textRenderer, xPos, yPos, x, z, world);
                 yPos += 10;
             }
 
-            if (hudConfig.isShowBiome()) {
+            if (config.showBiome) {
                 renderBiome(drawContext, textRenderer, xPos, yPos, pos, world);
                 yPos += 10;
             }
 
-            if (hudConfig.isRemark()) {
-                // 这里放到右上角，而不是左上角，不要用原来的xPos，yPos
-                // String title1 = "作者:yunfei";
-                // String title2 = "gameinfo偏牧定制版-禁止转载";
-
-                String title1 = "版本：";// 蓝色
-                String title2 = "1.21";// 白色
-                int rightX = client.getWindow().getScaledWidth() - textRenderer.getWidth("版本：1.21") - 2;
-                drawContext.drawTextWithShadow(textRenderer, title1, rightX, 2, color);
-                rightX += textRenderer.getWidth(title1);
-                drawContext.drawTextWithShadow(textRenderer, title2, rightX, 2, 0xFFFFFF);
-
-
-                // float scale = (float) hudConfig.getScale();
-                // drawContext.getMatrices().push();
-                // drawContext.getMatrices().scale(scale, scale, scale);
-                // int rightX = client.getWindow().getScaledWidth() - textRenderer.getWidth("版本：") - 2;
-                // int rightX2 = client.getWindow().getScaledWidth() - textRenderer.getWidth(title2) - 2;
-                // 靠右边
-                // int rightX = (int) (client.getWindow().getScaledWidth() / scale - textRenderer.getWidth(title1));
-                // int rightX2 = (int) (client.getWindow().getScaledWidth() / scale - textRenderer.getWidth(title2));
-                // int rightY = 2;
-                // drawContext.drawTextWithShadow(textRenderer, title1, rightX, rightY, color);
-                // rightY += textRenderer.fontHeight;
-                // drawContext.drawTextWithShadow(textRenderer, title2, rightX2, rightY, color);
-                // drawContext.getMatrices().pop();
+            if (config.remark) {
+                String version = "版本：";// 蓝色
+                String versionValue = "1.21.4";// 白色
+                int rightX = client.getWindow().getScaledWidth() - textRenderer.getWidth(version + versionValue) - 2;
+                drawContext.drawTextWithShadow(textRenderer, version, rightX, 2, color);
+                rightX += textRenderer.getWidth(version);
+                drawContext.drawTextWithShadow(textRenderer, versionValue, rightX, 2, 0xFFFFFF);
             }
         }
     }
@@ -144,13 +111,6 @@ public class HudOverlay implements HudRenderCallback {
         int width = textRenderer.getWidth("FPS: ");
         width += textRenderer.getWidth(" ");
         drawContext.drawTextWithShadow(textRenderer, fps == -1 ? "未知" : String.valueOf(fps), width, yPos, 0xFFFFFF);
-        // // 渲染版本号 版本：1.21
-        // width += textRenderer.getWidth(String.valueOf(fps));
-        // width += textRenderer.getWidth(" ");
-        // String version = "版本: ";
-        // drawContext.drawTextWithShadow(textRenderer, version, xPos + width, yPos, color);
-        // width += textRenderer.getWidth(version);
-        // drawContext.drawTextWithShadow(textRenderer, "1.21", xPos + width, yPos, 0xFFFFFF);
     }
 
     private void renderTimeAndDays(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, World world) {
