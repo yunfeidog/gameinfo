@@ -30,12 +30,7 @@ public class HudOverlay implements HudRenderCallback {
     // 是否开启全部展示
     public boolean isShowAll = true;
 
-    private static final KeyBinding toggleHudKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-            "key.gameinfo.toggleHud",
-            InputUtil.Type.KEYSYM,
-            GLFW.GLFW_KEY_F1,
-            "category.gameinfo"
-    ));
+    private static final KeyBinding toggleHudKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.gameinfo.toggleHud", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_F1, "category.gameinfo"));
 
     public HudOverlay() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
@@ -90,7 +85,7 @@ public class HudOverlay implements HudRenderCallback {
 
             if (config.remark) {
                 String version = "版本：";// 蓝色
-                String versionValue = "1.21.4";// 白色
+                String versionValue = config.version;
                 int rightX = client.getWindow().getScaledWidth() - textRenderer.getWidth(version + versionValue) - 2;
                 drawContext.drawTextWithShadow(textRenderer, version, rightX, 2, color);
                 rightX += textRenderer.getWidth(version);

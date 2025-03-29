@@ -17,6 +17,7 @@ public class GameInfoConfig {
     public Integer yPos = 3; // y 坐标
     public boolean remark = true; // 是否显示备注
     public double scale = 0.5; // 文字
+    public String version = "1.21.5";
 
     private static final String CONFIG_FILE = "config" + File.separator + "gameinfo.properties";
 
@@ -58,6 +59,7 @@ public class GameInfoConfig {
             yPos = Integer.parseInt(properties.getProperty("yPos", "3"));
             remark = Boolean.parseBoolean(properties.getProperty("remark", "true"));
             scale = Double.parseDouble(properties.getProperty("scale", "0.5"));
+            version = properties.getProperty("version", "1.21.5");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -75,7 +77,7 @@ public class GameInfoConfig {
         properties.setProperty("yPos", yPos.toString());
         properties.setProperty("remark", Boolean.toString(remark));
         properties.setProperty("scale", Double.toString(scale));
-
+        properties.setProperty("version", version);
         try (FileOutputStream output = new FileOutputStream(CONFIG_FILE)) {
             properties.store(output, null);
         } catch (IOException e) {
