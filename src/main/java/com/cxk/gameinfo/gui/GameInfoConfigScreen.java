@@ -22,13 +22,32 @@ public class GameInfoConfigScreen extends Screen {
     private ButtonWidget remarkButton;
     private TextFieldWidget xPosField;
     private TextFieldWidget yPosField;
-    private TextFieldWidget colorField;
-    private SliderWidget scaleSlider;
+    private ButtonWidget colorButton;
+    
+    private String currentColorName = "黄色"; // 默认颜色名
 
     public GameInfoConfigScreen(Screen parent) {
         super(Text.literal("游戏信息配置"));
         this.parent = parent;
         this.config = GameinfoClient.config;
+        
+        // 根据当前颜色设置颜色名
+        updateColorName();
+    }
+    
+    private void updateColorName() {
+        // 根据颜色值确定颜色名称
+        switch (config.color) {
+            case 0xFFFFFFFF -> currentColorName = "白色";
+            case 0xFFFFFF00 -> currentColorName = "黄色";
+            case 0xFF00FF00 -> currentColorName = "绿色";
+            case 0xFF00FFFF -> currentColorName = "青色";
+            case 0xFFFF0000 -> currentColorName = "红色";
+            case 0xFFFF00FF -> currentColorName = "紫色";
+            case 0xFFFFA500 -> currentColorName = "橙色";
+            case 0xFF808080 -> currentColorName = "灰色";
+            default -> currentColorName = "自定义";
+        }
     }
 
     @Override
@@ -86,15 +105,15 @@ public class GameInfoConfigScreen extends Screen {
             .build());
 
         this.remarkButton = this.addDrawableChild(ButtonWidget.builder(
-            Text.literal("标注显示: " + (config.remark ? "开启" : "关闭")),
+            Text.literal("版本显示: " + (config.remark ? "开启" : "关闭")),
             button -> {
                 config.remark = !config.remark;
-                button.setMessage(Text.literal("标注显示: " + (config.remark ? "开启" : "关闭")));
+                button.setMessage(Text.literal("版本显示: " + (config.remark ? "开启" : "关闭")));
             })
             .dimensions(centerX - buttonWidth/2, startY + spacing * 5, buttonWidth, buttonHeight)
             .build());
 
-        // 位置设置
+        // X Y位置设置
         this.xPosField = new TextFieldWidget(this.textRenderer, centerX - 80, startY + spacing * 6, 60, 20, Text.literal("X位置"));
         this.xPosField.setText(String.valueOf(config.xPos));
         this.xPosField.setChangedListener(text -> {
@@ -113,45 +132,33 @@ public class GameInfoConfigScreen extends Screen {
         });
         this.addDrawableChild(this.yPosField);
 
-        // 颜色设置
-        this.colorField = new TextFieldWidget(this.textRenderer, centerX - buttonWidth/2, startY + spacing * 7, buttonWidth, 20, Text.literal("颜色"));
-        this.colorField.setText(String.format("%06X", config.color & 0xFFFFFF));
-        this.colorField.setChangedListener(text -> {
-            try {
-                if (text.length() == 6) {
-                    config.color = (int) Long.parseLong("FF" + text, 16);
-                }
-            } catch (NumberFormatException ignored) {}
-        });
-        this.addDrawableChild(this.colorField);
-
-        // 缩放滑块
-        this.scaleSlider = this.addDrawableChild(new SliderWidget(centerX - buttonWidth/2, startY + spacing * 8, buttonWidth, 20, Text.literal("大小: " + String.format("%.1f", config.scale)), config.scale) {
-            @Override
-            protected void updateMessage() {
-                this.setMessage(Text.literal("大小: " + String.format("%.1f", this.value)));
-            }
-
-            @Override
-            protected void applyValue() {
-                config.scale = this.value;
-            }
-        });
+        // 颜色选择按钮 - 打开颜色选择器
+        this.colorButton = this.addDrawableChild(ButtonWidget.builder(
+            Text.literal("选择颜色: " + currentColorName),
+            button -> {
+                this.client.setScreen(new ColorPickerScreen(this, (color, colorName) -> {
+                    config.color = color;
+                    currentColorName = colorName;
+                    button.setMessage(Text.literal("选择颜色: " + colorName));
+                }));
+            })
+            .dimensions(centerX - buttonWidth/2, startY + spacing * 7, buttonWidth, buttonHeight)
+            .build());
 
         // 保存和取消按钮
         this.addDrawableChild(ButtonWidget.builder(
-            Text.literal("保存"),
+            Text.literal("保存设置"),
             button -> {
                 config.saveConfig();
                 this.close();
             })
-            .dimensions(centerX - 105, startY + spacing * 10, 100, 20)
+            .dimensions(centerX - 105, startY + spacing * 8 + 10, 100, 20)
             .build());
 
         this.addDrawableChild(ButtonWidget.builder(
             Text.literal("取消"),
             button -> this.close())
-            .dimensions(centerX + 5, startY + spacing * 10, 100, 20)
+            .dimensions(centerX + 5, startY + spacing * 8 + 10, 100, 20)
             .build());
     }
 
@@ -162,10 +169,23 @@ public class GameInfoConfigScreen extends Screen {
         // 绘制标题
         context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 20, 0xFFFFFF);
         
-        // 绘制位置标签
-        context.drawTextWithShadow(this.textRenderer, "X位置:", this.width / 2 - 120, 40 + 25 * 6 + 5, 0xFFFFFF);
-        context.drawTextWithShadow(this.textRenderer, "Y位置:", this.width / 2 - 20, 40 + 25 * 6 + 5, 0xFFFFFF);
-        context.drawTextWithShadow(this.textRenderer, "颜色(十六进制):", this.width / 2 - 100, 40 + 25 * 7 - 10, 0xFFFFFF);
+        int centerX = this.width / 2;
+        int startY = 40;
+        int spacing = 25;
+        int buttonWidth = 200;
+        
+        // 绘制X和Y输入框的标签
+        context.drawTextWithShadow(this.textRenderer, "X坐标:", centerX - 115, startY + spacing * 6 + 5, 0xFFFFFF);
+        context.drawTextWithShadow(this.textRenderer, "Y坐标:", centerX - 15, startY + spacing * 6 + 5, 0xFFFFFF);
+        
+        // 绘制颜色预览方块
+        int colorPreviewX = centerX + buttonWidth/2 - 25;
+        int colorPreviewY = startY + spacing * 7 + 2;
+        context.fill(colorPreviewX, colorPreviewY, colorPreviewX + 16, colorPreviewY + 16, config.color);
+        context.drawBorder(colorPreviewX, colorPreviewY, 16, 16, 0xFF000000);
+        
+        // 绘制提示文本
+        context.drawCenteredTextWithShadow(this.textRenderer, "点击按钮进行设置，修改后记得保存", this.width / 2, this.height - 30, 0xAAAAAA);
     }
 
     @Override
