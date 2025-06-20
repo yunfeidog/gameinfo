@@ -2,6 +2,7 @@ package com.cxk.gameinfo.command;
 
 import com.cxk.gameinfo.GameinfoClient;
 import com.cxk.gameinfo.config.GameInfoConfig;
+import com.cxk.gameinfo.gui.GameInfoConfigScreen;
 import com.cxk.gameinfo.util.HexUtil;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
@@ -9,6 +10,7 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.ControlFlowAware;
 import net.minecraft.server.command.CommandManager;
@@ -17,6 +19,15 @@ import net.minecraft.server.command.ServerCommandSource;
 public class GameInfoCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
+        // 新增 /gi 命令打开GUI
+        dispatcher.register(CommandManager.literal("gi").executes(context -> {
+            MinecraftClient client = MinecraftClient.getInstance();
+            client.execute(() -> {
+                client.setScreen(new GameInfoConfigScreen(client.currentScreen));
+            });
+            return ControlFlowAware.Command.SINGLE_SUCCESS;
+        }));
+
         // hud fps [state: bool]
         dispatcher.register(CommandManager.literal("gameinfo").then(CommandManager.literal("帧数").then(CommandManager.argument("state", BoolArgumentType.bool()).executes(context -> {
             boolean state = BoolArgumentType.getBool(context, "state");
