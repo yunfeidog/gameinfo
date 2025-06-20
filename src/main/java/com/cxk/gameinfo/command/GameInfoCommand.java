@@ -2,6 +2,7 @@ package com.cxk.gameinfo.command;
 
 import com.cxk.gameinfo.GameinfoClient;
 import com.cxk.gameinfo.config.GameInfoConfig;
+import com.cxk.gameinfo.util.HexUtil;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -82,8 +83,9 @@ public class GameInfoCommand {
         // hud color [color: string]
         dispatcher.register(CommandManager.literal("gameinfo").then(CommandManager.literal("颜色").then(CommandManager.argument("color", StringArgumentType.string()).executes(context -> {
             String color = StringArgumentType.getString(context, "color");
+            System.out.println("颜色" + color);
             GameInfoConfig config = GameinfoClient.config;
-            config.color = Integer.decode("0x" + color);
+            config.color = HexUtil.toDecimal("0xFF" + color);
             config.saveConfig();
             return ControlFlowAware.Command.SINGLE_SUCCESS;
         }))));
