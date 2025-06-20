@@ -14,7 +14,7 @@ public class GameInfoConfig {
     public boolean showCoordinates = true; // 是否显示坐标
     public boolean showNetherCoordinates = true; // 是否显示下届坐标
     public boolean showBiome = false; // 是否显示群系
-    public int color = 0xFFFFFF00; // 文字颜色
+    public int color = Colors.YELLOW; // 文字颜色
     public Integer xPos = 3; // x 坐标
     public Integer yPos = 3; // y 坐标
     public boolean remark = true; // 是否显示备注

@@ -16,6 +16,7 @@ import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -25,8 +26,8 @@ import org.lwjgl.glfw.GLFW;
 
 public class HudOverlay implements HudElement {
     MinecraftClient client = MinecraftClient.getInstance();
-
-    private int color = 0xFFFFFFFF;
+    static int DEFAULT_COLOR = Colors.WHITE; // 默认颜色为白色
+    private int color = DEFAULT_COLOR;
 
     // 是否开启全部展示
     public boolean isShowAll = true;
@@ -89,9 +90,9 @@ public class HudOverlay implements HudElement {
                 String version = "版本：";// 蓝色
                 String versionValue = config.version;
                 int rightX = client.getWindow().getScaledWidth() - textRenderer.getWidth(version + versionValue) - 2;
-                drawContext.drawText(textRenderer, version, rightX, 2, color,false);
+                drawContext.drawText(textRenderer, version, rightX, 2, color, false);
                 rightX += textRenderer.getWidth(version);
-                drawContext.drawText(textRenderer, versionValue, rightX, 2, 0xFFFFFFFF,false);
+                drawContext.drawText(textRenderer, versionValue, rightX, 2, DEFAULT_COLOR, false);
             }
         }
     }
@@ -99,10 +100,10 @@ public class HudOverlay implements HudElement {
 
     private void renderFPS(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, MinecraftClient client) {
         int fps = "unspecified".equals(client.fpsDebugString) ? -1 : Integer.parseInt(client.fpsDebugString.split(" ")[0]);
-        drawContext.drawText(textRenderer, "FPS:  ", xPos, yPos, color,false);
+        drawContext.drawText(textRenderer, "FPS:  ", xPos, yPos, color, false);
         int width = textRenderer.getWidth("FPS: ");
         width += textRenderer.getWidth(" ");
-        drawContext.drawText(textRenderer, fps == -1 ? "未知" : String.valueOf(fps), width, yPos, 0xFFFFFFFF,false);
+        drawContext.drawText(textRenderer, fps == -1 ? "未知" : String.valueOf(fps), width, yPos, DEFAULT_COLOR, false);
     }
 
     private void renderTimeAndDays(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, World world) {
@@ -112,21 +113,21 @@ public class HudOverlay implements HudElement {
         int minutes = (int) ((timeOfDay % 1000) * 60 / 1000);
         int days = (int) (world.getTimeOfDay() / 24000);
 
-        drawContext.drawText(textRenderer, "天数: ", xPos, yPos, color,false);
+        drawContext.drawText(textRenderer, "天数: ", xPos, yPos, color, false);
         int width = textRenderer.getWidth("天数: ");
-        drawContext.drawText(textRenderer, String.valueOf(days), xPos + width, yPos, 0xFFFFFFFF,false);
+        drawContext.drawText(textRenderer, String.valueOf(days), xPos + width, yPos, DEFAULT_COLOR, false);
 
         width += textRenderer.getWidth(String.valueOf(days)) + textRenderer.getWidth("  时间: ");
-        drawContext.drawText(textRenderer, "  时间: ", xPos + textRenderer.getWidth("天数: ") + textRenderer.getWidth(String.valueOf(days)), yPos, color,false);
-        drawContext.drawText(textRenderer, String.format("%02d:%02d", hours, minutes), xPos + width, yPos, 0xFFFFFFFF,false);
+        drawContext.drawText(textRenderer, "  时间: ", xPos + textRenderer.getWidth("天数: ") + textRenderer.getWidth(String.valueOf(days)), yPos, color, false);
+        drawContext.drawText(textRenderer, String.format("%02d:%02d", hours, minutes), xPos + width, yPos, DEFAULT_COLOR, false);
     }
 
     private void renderCoordinates(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, BlockPos pos, World world) {
         String directionString = getDirectionString();
         String xyz = String.format("%d %d %d - %s", pos.getX(), pos.getY(), pos.getZ(), directionString);
-        drawContext.drawText(textRenderer, "XYZ: ", xPos, yPos, color,false);
+        drawContext.drawText(textRenderer, "XYZ: ", xPos, yPos, color, false);
         int width = textRenderer.getWidth("XYZ: ");
-        drawContext.drawText(textRenderer, xyz, xPos + width, yPos, 0xFFFFFFFF,false);
+        drawContext.drawText(textRenderer, xyz, xPos + width, yPos, DEFAULT_COLOR, false);
     }
 
     private String getDirectionString() {
@@ -154,28 +155,20 @@ public class HudOverlay implements HudElement {
         } else if (world.getRegistryKey().getValue().equals(World.NETHER.getValue())) {
             n_xz = String.format("%d %d", x * 8, z * 8);
         }
-        drawContext.drawText(textRenderer, "N-XZ: ", xPos, yPos, color,false);
+        drawContext.drawText(textRenderer, "N-XZ: ", xPos, yPos, color, false);
         int width = textRenderer.getWidth("N-XZ: ");
-        drawContext.drawText(textRenderer, n_xz, xPos + width, yPos, 0xFFFFFFFF,false);
+        drawContext.drawText(textRenderer, n_xz, xPos + width, yPos, DEFAULT_COLOR, false);
     }
 
     private void renderBiome(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, BlockPos pos, World world) {
         RegistryEntry<Biome> biomeEntry = world.getBiome(pos);
         Identifier biomeId = biomeEntry.getKey().map(RegistryKey::getValue).orElse(null);
         String biomeName = biomeId == null ? "未知生物群系" : biomeId.getPath();
-        drawContext.drawText(textRenderer, String.format("生物群系: %s", biomeName), xPos, yPos, 0xFFFFFFFF,false);
+        drawContext.drawText(textRenderer, String.format("生物群系: %s", biomeName), xPos, yPos, DEFAULT_COLOR, false);
     }
 
     @Override
     public void render(DrawContext context, RenderTickCounter tickCounter) {
-//        logger("渲染HUD信息");
-//        context.drawText(
-//                client.textRenderer,
-//                "GameInfo HUD",
-//                10, 12,
-//                0xFFFF0000,
-//                false
-//        );
         onHudRender(context, 0);
     }
 
