@@ -1,5 +1,7 @@
 package com.cxk.gameinfo.config;
 
+import net.minecraft.util.Colors;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

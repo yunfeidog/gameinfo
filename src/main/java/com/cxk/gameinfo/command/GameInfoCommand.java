@@ -112,5 +112,13 @@ public class GameInfoCommand {
             //todo
             return ControlFlowAware.Command.SINGLE_SUCCESS;
         }))));
+
+        dispatcher.register(CommandManager.literal("gameinfo").then(CommandManager.literal("reload")).executes(
+                context -> {
+                    GameInfoConfig config = GameinfoClient.config;
+                    config.loadConfig();
+                    return ControlFlowAware.Command.SINGLE_SUCCESS;
+                }
+        ));
     }
 }
