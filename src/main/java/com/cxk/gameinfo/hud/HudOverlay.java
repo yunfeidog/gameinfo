@@ -16,6 +16,7 @@ import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -163,8 +164,21 @@ public class HudOverlay implements HudElement {
     private void renderBiome(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, BlockPos pos, World world) {
         RegistryEntry<Biome> biomeEntry = world.getBiome(pos);
         Identifier biomeId = biomeEntry.getKey().map(RegistryKey::getValue).orElse(null);
-        String biomeName = biomeId == null ? "未知生物群系" : biomeId.getPath();
-        drawContext.drawText(textRenderer, String.format("生物群系: %s", biomeName), xPos, yPos, DEFAULT_COLOR, false);
+
+        String biomeName;
+        if (biomeId == null) {
+            biomeName = "未知生物群系";
+        } else {
+            // 获取本地化翻译文本，比如 "biome.minecraft.plains" -> 平原
+            String translationKey = "biome." + biomeId.getNamespace() + "." + biomeId.getPath();
+            biomeName = Text.translatable(translationKey).getString(); // 获取翻译后的中文名
+        }
+
+//        String biomeName = biomeId == null ? "未知生物群系" : biomeId.getPath();
+        drawContext.drawText(textRenderer, "生物群系: ", xPos, yPos, color, false);
+        int width = textRenderer.getWidth("生物群系: ");
+        int xPosWithWidth = xPos + width;
+        drawContext.drawText(textRenderer, biomeName, xPosWithWidth, yPos, DEFAULT_COLOR, false);
     }
 
     @Override
