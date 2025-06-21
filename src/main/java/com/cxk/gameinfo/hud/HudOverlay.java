@@ -20,6 +20,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HudOverlay implements HudElement {
     static MinecraftClient client;
@@ -36,14 +40,7 @@ public class HudOverlay implements HudElement {
     }
 
     // 获取所有装备槽位
-    static EquipmentSlot[] armorSlots = {
-            EquipmentSlot.OFFHAND,
-            EquipmentSlot.MAINHAND,
-            EquipmentSlot.FEET,
-            EquipmentSlot.LEGS,
-            EquipmentSlot.CHEST,
-            EquipmentSlot.HEAD,
-    };
+    static EquipmentSlot[] armorSlots = {EquipmentSlot.OFFHAND, EquipmentSlot.MAINHAND, EquipmentSlot.FEET, EquipmentSlot.LEGS, EquipmentSlot.CHEST, EquipmentSlot.HEAD,};
 
 
     /**
@@ -102,13 +99,7 @@ public class HudOverlay implements HudElement {
         int startY = screenHeight - 22;
 
         // 先收集所有有耐久度的装备
-        java.util.List<ItemStack> durableItems = new java.util.ArrayList<>();
-        for (EquipmentSlot slot : armorSlots) {
-            ItemStack stack = player.getEquippedStack(slot);
-            if (!stack.isEmpty() && stack.isDamageable()) {
-                durableItems.add(stack);
-            }
-        }
+        List<ItemStack> durableItems = getShowItemStacks(player);
         // 从下往上渲染（倒序）
         for (int i = 0; i < durableItems.size(); i++) {
             ItemStack stack = durableItems.get(i);
@@ -126,6 +117,31 @@ public class HudOverlay implements HudElement {
             drawContext.drawTextWithShadow(textRenderer, durabilityText, textX, textY, color);
         }
     }
+
+    private static @NotNull List<ItemStack> getShowItemStacks(ClientPlayerEntity player) {
+        List<ItemStack> durableItems = new ArrayList<>();
+        long currentTime = System.currentTimeMillis();
+
+        for (EquipmentSlot slot : armorSlots) {
+            ItemStack stack = player.getEquippedStack(slot);
+            if (stack.isEmpty() || !stack.isDamageable()) {
+                DurabilityRecord.durabilityTracker.remove(slot);
+                continue;
+            }
+            // 检查是否有经验修补附魔
+            if (DurabilityRecord.hasExperienceMending(stack)) {
+                // 清理该槽位的记录
+                DurabilityRecord.durabilityTracker.remove(slot);
+                continue;
+            }
+            // 检查耐久度是否在30秒内有变化
+            if (DurabilityRecord.hasDurabilityChangedRecently(slot, stack, currentTime)) {
+                durableItems.add(stack);
+            }
+        }
+        return durableItems;
+    }
+
 
     private void renderRemark(DrawContext drawContext) {
         if (!config.remark) return;
