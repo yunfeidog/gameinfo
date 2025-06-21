@@ -1,5 +1,6 @@
 package com.cxk.gameinfo.config;
 
+import com.cxk.gameinfo.util.HexUtil;
 import net.minecraft.util.Colors;
 
 import java.io.File;
@@ -20,8 +21,12 @@ public class GameInfoConfig {
     public boolean remark = true; // 是否显示备注
     public double scale = 0.5; // 文字
     public String version = "1.21.6";
-
+    public boolean showEquipment = true;
     private static final String CONFIG_FILE = "config" + File.separator + "gameinfo.properties";
+
+    public GameInfoConfig() {
+        loadConfig();
+    }
 
     /**
      * @param flag true代表关闭，false代表开启
@@ -34,14 +39,12 @@ public class GameInfoConfig {
             showNetherCoordinates = false;
             showBiome = false;
             remark = false;
+            showEquipment = false;
         } else {
             loadConfig();
         }
     }
 
-    public GameInfoConfig() {
-        loadConfig();
-    }
 
     public void loadConfig() {
         File configFile = new File(CONFIG_FILE);
@@ -62,6 +65,7 @@ public class GameInfoConfig {
             remark = Boolean.parseBoolean(properties.getProperty("remark", "true"));
             scale = Double.parseDouble(properties.getProperty("scale", "0.5"));
             version = properties.getProperty("version", "1.21.6");
+            showEquipment = Boolean.parseBoolean(properties.getProperty("showEquipment", "true"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -74,12 +78,13 @@ public class GameInfoConfig {
         properties.setProperty("showCoordinates", Boolean.toString(showCoordinates));
         properties.setProperty("showNetherCoordinates", Boolean.toString(showNetherCoordinates));
         properties.setProperty("showBiome", Boolean.toString(showBiome));
-        properties.setProperty("color", String.format("0x%08X", color));
+        properties.setProperty("color", HexUtil.toHex(color));
         properties.setProperty("xPos", xPos.toString());
         properties.setProperty("yPos", yPos.toString());
         properties.setProperty("remark", Boolean.toString(remark));
         properties.setProperty("scale", Double.toString(scale));
         properties.setProperty("version", version);
+        properties.setProperty("showEquipment", Boolean.toString(showEquipment));
         try (FileOutputStream output = new FileOutputStream(CONFIG_FILE)) {
             properties.store(output, null);
         } catch (IOException e) {

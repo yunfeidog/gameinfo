@@ -9,7 +9,7 @@ import net.fabricmc.api.ClientModInitializer;
 
 public class GameinfoClient implements ClientModInitializer {
 
-    public static GameInfoConfig config = new GameInfoConfig();
+    public static GameInfoConfig config = new GameInfoConfig(); // 初始化配置
 
     @Override
     public void onInitializeClient() {

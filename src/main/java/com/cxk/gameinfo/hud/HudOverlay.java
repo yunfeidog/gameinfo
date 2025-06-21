@@ -13,7 +13,9 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.Text;
@@ -92,6 +94,18 @@ public class HudOverlay implements HudElement {
                 yPos += 10;
             }
 
+            if (config.showEquipment) {
+                MinecraftClient client = MinecraftClient.getInstance();
+                if (client.player == null || client.options.hudHidden) return;
+
+                int screenWidth = client.getWindow().getScaledWidth();
+                int screenHeight = client.getWindow().getScaledHeight();
+
+                int xPos2 = screenWidth / 2 + 100;  // 屏幕中心右边偏移（避免挡住热键栏）
+                int yPos2 = screenHeight - 100;     // 热键栏上方一点
+                renderEquipment(drawContext, textRenderer, xPos2, yPos2, player);
+            }
+
             if (config.remark) {
                 String version = "版本：";// 蓝色
                 String versionValue = config.version;
@@ -102,6 +116,50 @@ public class HudOverlay implements HudElement {
             }
         }
     }
+
+    private void renderEquipment(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, PlayerEntity player) {
+        // 绘制主手物品
+        ItemStack mainHandStack = player.getMainHandStack();
+        if (!mainHandStack.isEmpty() && mainHandStack.isDamageable()) {
+            int durability = mainHandStack.getMaxDamage() - mainHandStack.getDamage();
+            drawContext.drawItem(mainHandStack, xPos, yPos);
+            String durabilityText = String.valueOf(durability);
+            int width = textRenderer.getWidth(durabilityText);
+            drawContext.drawText(textRenderer, durabilityText, xPos + 20 - width, yPos + 5, 0xFFFFFF, true);
+            yPos += 20;
+        }
+
+        // 绘制装备栏：头、胸、腿、脚
+        EquipmentSlot[] armorSlots = {
+                EquipmentSlot.HEAD,
+                EquipmentSlot.CHEST,
+                EquipmentSlot.LEGS,
+                EquipmentSlot.FEET
+        };
+
+        for (EquipmentSlot slot : armorSlots) {
+            ItemStack stack = player.getEquippedStack(slot);
+            if (!stack.isEmpty() && stack.isDamageable()) {
+                int durability = stack.getMaxDamage() - stack.getDamage();
+                drawContext.drawItem(stack, xPos, yPos);
+                String durabilityText = String.valueOf(durability);
+                int width = textRenderer.getWidth(durabilityText);
+                drawContext.drawText(textRenderer, durabilityText, xPos + 20 - width, yPos + 5, 0xFFFFFF, true);
+                yPos += 20;
+            }
+        }
+
+        // 可选：绘制副手物品（如有需求）
+        ItemStack offHandStack = player.getOffHandStack();
+        if (!offHandStack.isEmpty() && offHandStack.isDamageable()) {
+            int durability = offHandStack.getMaxDamage() - offHandStack.getDamage();
+            drawContext.drawItem(offHandStack, xPos, yPos);
+            String durabilityText = String.valueOf(durability);
+            int width = textRenderer.getWidth(durabilityText);
+            drawContext.drawText(textRenderer, durabilityText, xPos + 20 - width, yPos + 5, 0xFFFFFF, true);
+        }
+    }
+
 
 
     private void renderFPS(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, MinecraftClient client) {
@@ -189,9 +247,5 @@ public class HudOverlay implements HudElement {
     @Override
     public void render(DrawContext context, RenderTickCounter tickCounter) {
         onHudRender(context, 0);
-    }
-
-    public static void logger(String message) {
-        System.out.println("[调试]: " + message);
     }
 }

@@ -7,3 +7,11 @@ yarn_mappings=1.21.5+build.1
 loader_version=0.16.10
 fabric_version=0.119.6+1.21.5
 ```
+
+
+todo:
+1. 重构代码
+2. 添加装备展示
+3. 添加生物血量展示
+4. 添加物品展示
+5. 添加熔炉信息展示
