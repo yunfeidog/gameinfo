@@ -146,9 +146,9 @@ public class HudOverlay implements HudElement {
     private void renderRemark(DrawContext drawContext) {
         if (!config.remark) return;
         String versionLabel = "版本：";
-        String versionValue = client.getGameVersion();
+        String versionValue = config.version;
         int y = 2;
-        int x = client.getWindow().getScaledWidth() - textRenderer.getWidth(versionLabel + versionValue) - 2;
+        int x = client.getWindow().getScaledWidth() - textRenderer.getWidth(versionLabel + versionValue) - 25;
         drawContext.drawTextWithShadow(textRenderer, versionLabel, x, y, color);
         x += textRenderer.getWidth(versionLabel);
         drawContext.drawTextWithShadow(textRenderer, versionValue, x, y, DEFAULT_COLOR);

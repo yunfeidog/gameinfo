@@ -7,8 +7,10 @@ version = project.mod_version
 group = project.maven_group
 
 base {
-    archivesName = project.archives_base_name
+    archivesName = "[信息显示]GameInfo-${minecraft_version}"
 }
+
+
 
 repositories {
 }
