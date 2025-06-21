@@ -4,21 +4,27 @@ import com.cxk.gameinfo.GameinfoClient;
 import com.cxk.gameinfo.config.GameInfoConfig;
 import com.cxk.gameinfo.gui.GameInfoConfigScreen;
 import com.cxk.gameinfo.util.HexUtil;
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.ControlFlowAware;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 
-public class GameInfoCommand {
+public class GameInfoCommand implements CommandRegistrationCallback {
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
+    public static void register() {
+        GameInfoCommand command = new GameInfoCommand();
+        CommandRegistrationCallback.EVENT.register(command);
+    }
+
+    @Override
+    public void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
         // 新增 /gi 命令打开GUI
         dispatcher.register(CommandManager.literal("gi").executes(context -> {
             MinecraftClient client = MinecraftClient.getInstance();

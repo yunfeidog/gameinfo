@@ -4,9 +4,9 @@ import com.cxk.gameinfo.GameinfoClient;
 import com.cxk.gameinfo.config.GameInfoConfig;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -42,6 +42,11 @@ public class HudOverlay implements HudElement {
                 toggleHudVisibility();
             }
         });
+    }
+
+    public static void register() {
+        HudOverlay hudOverlay = new HudOverlay();
+        HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, Identifier.of("gameinfo", "custom_text"), hudOverlay); // 注册HUD元素
     }
 
     private void toggleHudVisibility() {
@@ -91,9 +96,9 @@ public class HudOverlay implements HudElement {
                 String version = "版本：";// 蓝色
                 String versionValue = config.version;
                 int rightX = client.getWindow().getScaledWidth() - textRenderer.getWidth(version + versionValue) - 2;
-                drawContext.drawText(textRenderer, version, rightX, 2, color, false);
+                drawContext.drawText(textRenderer, version, rightX, 2, color, true);
                 rightX += textRenderer.getWidth(version);
-                drawContext.drawText(textRenderer, versionValue, rightX, 2, DEFAULT_COLOR, false);
+                drawContext.drawText(textRenderer, versionValue, rightX, 2, DEFAULT_COLOR, true);
             }
         }
     }
@@ -101,10 +106,10 @@ public class HudOverlay implements HudElement {
 
     private void renderFPS(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, MinecraftClient client) {
         int fps = "unspecified".equals(client.fpsDebugString) ? -1 : Integer.parseInt(client.fpsDebugString.split(" ")[0]);
-        drawContext.drawText(textRenderer, "FPS:  ", xPos, yPos, color, false);
+        drawContext.drawText(textRenderer, "FPS:  ", xPos, yPos, color, true);
         int width = textRenderer.getWidth("FPS: ");
         width += textRenderer.getWidth(" ");
-        drawContext.drawText(textRenderer, fps == -1 ? "未知" : String.valueOf(fps), width, yPos, DEFAULT_COLOR, false);
+        drawContext.drawText(textRenderer, fps == -1 ? "未知" : String.valueOf(fps), width, yPos, DEFAULT_COLOR, true);
     }
 
     private void renderTimeAndDays(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, World world) {
@@ -114,21 +119,21 @@ public class HudOverlay implements HudElement {
         int minutes = (int) ((timeOfDay % 1000) * 60 / 1000);
         int days = (int) (world.getTimeOfDay() / 24000);
 
-        drawContext.drawText(textRenderer, "天数: ", xPos, yPos, color, false);
+        drawContext.drawText(textRenderer, "天数: ", xPos, yPos, color, true);
         int width = textRenderer.getWidth("天数: ");
-        drawContext.drawText(textRenderer, String.valueOf(days), xPos + width, yPos, DEFAULT_COLOR, false);
+        drawContext.drawText(textRenderer, String.valueOf(days), xPos + width, yPos, DEFAULT_COLOR, true);
 
         width += textRenderer.getWidth(String.valueOf(days)) + textRenderer.getWidth("  时间: ");
-        drawContext.drawText(textRenderer, "  时间: ", xPos + textRenderer.getWidth("天数: ") + textRenderer.getWidth(String.valueOf(days)), yPos, color, false);
-        drawContext.drawText(textRenderer, String.format("%02d:%02d", hours, minutes), xPos + width, yPos, DEFAULT_COLOR, false);
+        drawContext.drawText(textRenderer, "  时间: ", xPos + textRenderer.getWidth("天数: ") + textRenderer.getWidth(String.valueOf(days)), yPos, color, true);
+        drawContext.drawText(textRenderer, String.format("%02d:%02d", hours, minutes), xPos + width, yPos, DEFAULT_COLOR, true);
     }
 
     private void renderCoordinates(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, BlockPos pos, World world) {
         String directionString = getDirectionString();
         String xyz = String.format("%d %d %d - %s", pos.getX(), pos.getY(), pos.getZ(), directionString);
-        drawContext.drawText(textRenderer, "XYZ: ", xPos, yPos, color, false);
+        drawContext.drawText(textRenderer, "XYZ: ", xPos, yPos, color, true);
         int width = textRenderer.getWidth("XYZ: ");
-        drawContext.drawText(textRenderer, xyz, xPos + width, yPos, DEFAULT_COLOR, false);
+        drawContext.drawText(textRenderer, xyz, xPos + width, yPos, DEFAULT_COLOR, true);
     }
 
     private String getDirectionString() {
@@ -156,9 +161,9 @@ public class HudOverlay implements HudElement {
         } else if (world.getRegistryKey().getValue().equals(World.NETHER.getValue())) {
             n_xz = String.format("%d %d", x * 8, z * 8);
         }
-        drawContext.drawText(textRenderer, "N-XZ: ", xPos, yPos, color, false);
+        drawContext.drawText(textRenderer, "N-XZ: ", xPos, yPos, color, true);
         int width = textRenderer.getWidth("N-XZ: ");
-        drawContext.drawText(textRenderer, n_xz, xPos + width, yPos, DEFAULT_COLOR, false);
+        drawContext.drawText(textRenderer, n_xz, xPos + width, yPos, DEFAULT_COLOR, true);
     }
 
     private void renderBiome(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, BlockPos pos, World world) {
@@ -175,10 +180,10 @@ public class HudOverlay implements HudElement {
         }
 
 //        String biomeName = biomeId == null ? "未知生物群系" : biomeId.getPath();
-        drawContext.drawText(textRenderer, "生物群系: ", xPos, yPos, color, false);
+        drawContext.drawText(textRenderer, "生物群系: ", xPos, yPos, color, true);
         int width = textRenderer.getWidth("生物群系: ");
         int xPosWithWidth = xPos + width;
-        drawContext.drawText(textRenderer, biomeName, xPosWithWidth, yPos, DEFAULT_COLOR, false);
+        drawContext.drawText(textRenderer, biomeName, xPosWithWidth, yPos, DEFAULT_COLOR, true);
     }
 
     @Override

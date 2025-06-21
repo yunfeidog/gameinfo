@@ -15,7 +15,7 @@ public class KeybindHandler {
         openGuiKeyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.gameinfo.open_gui", // 翻译键
                 InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_P, // P键
+                GLFW.GLFW_KEY_U, // P键
                 "category.gameinfo" // 类别
         ));
 

@@ -75,7 +75,6 @@ public class GameInfoConfig {
         properties.setProperty("showNetherCoordinates", Boolean.toString(showNetherCoordinates));
         properties.setProperty("showBiome", Boolean.toString(showBiome));
         properties.setProperty("color", String.format("0x%08X", color));
-//        properties.setProperty("color", String.valueOf(color));
         properties.setProperty("xPos", xPos.toString());
         properties.setProperty("yPos", yPos.toString());
         properties.setProperty("remark", Boolean.toString(remark));
