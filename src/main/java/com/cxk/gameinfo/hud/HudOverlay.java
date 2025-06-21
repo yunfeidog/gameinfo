@@ -2,17 +2,12 @@ package com.cxk.gameinfo.hud;
 
 import com.cxk.gameinfo.GameinfoClient;
 import com.cxk.gameinfo.config.GameInfoConfig;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -25,174 +20,221 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import org.lwjgl.glfw.GLFW;
 
 public class HudOverlay implements HudElement {
-    MinecraftClient client = MinecraftClient.getInstance();
+    static MinecraftClient client;
+    static TextRenderer textRenderer;
     static int DEFAULT_COLOR = Colors.WHITE; // 默认颜色为白色
-    private int color = DEFAULT_COLOR;
-
-    // 是否开启全部展示
-    public boolean isShowAll = true;
-
-    private static final KeyBinding toggleHudKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.gameinfo.toggleHud", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_F1, "category.gameinfo"));
-
+    static int DEFAULT_HEIGHT = 10;
+    static int color = DEFAULT_COLOR;
+    static GameInfoConfig config;
 
     public HudOverlay() {
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            while (toggleHudKey.wasPressed()) {
-                toggleHudVisibility();
-            }
-        });
+        client = MinecraftClient.getInstance();
+        textRenderer = client.textRenderer;
+        config = GameinfoClient.config; // 获取配置
     }
 
-    public static void register() {
-        HudOverlay hudOverlay = new HudOverlay();
-        HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, Identifier.of("gameinfo", "custom_text"), hudOverlay); // 注册HUD元素
-    }
+    // 获取所有装备槽位
+    static EquipmentSlot[] armorSlots = {
+            EquipmentSlot.OFFHAND,
+            EquipmentSlot.MAINHAND,
+            EquipmentSlot.FEET,
+            EquipmentSlot.LEGS,
+            EquipmentSlot.CHEST,
+            EquipmentSlot.HEAD,
+    };
 
-    private void toggleHudVisibility() {
+
+    /**
+     * 控制Hud 开启/关闭
+     */
+    public void toggleHudVisibility() {
         GameInfoConfig config = GameinfoClient.config;
-        config.closeGameInfo(isShowAll);
-        isShowAll = !isShowAll;
+        config.enabled = !config.enabled;
+        config.saveConfig();
     }
 
-    public void onHudRender(DrawContext drawContext, float tickDelta) {
+    public static void logger(String message) {
+        System.out.println("[DEBUG]： " + message);
+    }
+
+    @Override
+    public void render(DrawContext drawContext, RenderTickCounter tickCounter) {
+        if (textRenderer == null) {
+            textRenderer = client.textRenderer; // 确保文本渲染器已初始化
+            if (textRenderer == null) {
+                logger("文本渲染器仍然为null，无法渲染HUD信息");
+            }
+        }
+
         PlayerEntity player = client.player;
-        GameInfoConfig config = GameinfoClient.config;
-        if (player != null) {
-            World world = player.getWorld();
-            BlockPos pos = player.getBlockPos();
-            int x = pos.getX();
-            int z = pos.getZ();
-            TextRenderer textRenderer = client.textRenderer;
-            int xPos = config.xPos;
-            int yPos = config.yPos;
-            this.color = config.color;
-            if (config.showFPS) {
-                renderFPS(drawContext, textRenderer, xPos, yPos, client);
-                yPos += 10;
-            }
+        if (player == null) return;
+        if (!config.enabled) return;
 
-            if (config.showTimeAndDays) {
-                renderTimeAndDays(drawContext, textRenderer, xPos, yPos, world);
-                yPos += 10;
-            }
+        int xPos = config.xPos;
+        int yPos = config.yPos;
+        color = config.color;
 
-            if (config.showCoordinates) {
-                renderCoordinates(drawContext, textRenderer, xPos, yPos, pos, world);
-                yPos += 10;
-            }
+        // 左上角屏幕渲染
+        yPos += renderFPS(drawContext, xPos, yPos);
+        yPos += renderTimeAndDays(drawContext, xPos, yPos);
+        yPos += renderCoordinates(drawContext, xPos, yPos);
+        yPos += renderNetherCoordinates(drawContext, xPos, yPos);
+        yPos += renderBiome(drawContext, xPos, yPos);
 
-            if (config.showNetherCoordinates) {
-                renderNetherCoordinates(drawContext, textRenderer, xPos, yPos, x, z, world);
-                yPos += 10;
-            }
+        // 右上角渲染版本信息
+        renderRemark(drawContext);
 
-            if (config.showBiome) {
-                renderBiome(drawContext, textRenderer, xPos, yPos, pos, world);
-                yPos += 10;
-            }
-
-            if (config.showEquipment) {
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player == null || client.options.hudHidden) return;
-
-                int screenWidth = client.getWindow().getScaledWidth();
-                int screenHeight = client.getWindow().getScaledHeight();
-
-                int xPos2 = screenWidth / 2 + 100;  // 屏幕中心右边偏移（避免挡住热键栏）
-                int yPos2 = screenHeight - 100;     // 热键栏上方一点
-                renderEquipment(drawContext, textRenderer, xPos2, yPos2, player);
-            }
-
-            if (config.remark) {
-                String version = "版本：";// 蓝色
-                String versionValue = config.version;
-                int rightX = client.getWindow().getScaledWidth() - textRenderer.getWidth(version + versionValue) - 2;
-                drawContext.drawText(textRenderer, version, rightX, 2, color, true);
-                rightX += textRenderer.getWidth(version);
-                drawContext.drawText(textRenderer, versionValue, rightX, 2, DEFAULT_COLOR, true);
-            }
-        }
+        // 在玩家的装备栏附近渲染装备信息
+        renderPlayerEquipment(drawContext);
     }
 
-    private void renderEquipment(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, PlayerEntity player) {
-        // 绘制主手物品
-        ItemStack mainHandStack = player.getMainHandStack();
-        if (!mainHandStack.isEmpty() && mainHandStack.isDamageable()) {
-            int durability = mainHandStack.getMaxDamage() - mainHandStack.getDamage();
-            drawContext.drawItem(mainHandStack, xPos, yPos);
-            String durabilityText = String.valueOf(durability);
-            int width = textRenderer.getWidth(durabilityText);
-            drawContext.drawText(textRenderer, durabilityText, xPos + 20 - width, yPos + 5, 0xFFFFFF, true);
-            yPos += 20;
-        }
 
-        // 绘制装备栏：头、胸、腿、脚
-        EquipmentSlot[] armorSlots = {
-                EquipmentSlot.HEAD,
-                EquipmentSlot.CHEST,
-                EquipmentSlot.LEGS,
-                EquipmentSlot.FEET
-        };
+    private void renderPlayerEquipment(DrawContext drawContext) {
+        if (!config.showEquipment) return;
+        ClientPlayerEntity player = client.player;
+        if (player == null || client.options.hudHidden) return;
+        int screenWidth = client.getWindow().getScaledWidth();
+        int screenHeight = client.getWindow().getScaledHeight();
+        // 装备显示在物品栏右侧 物品栏宽度是182像素（9个槽位×20像素+2像素边距），所以91是物品栏右边缘，再加10像素间距
+        int startX = screenWidth / 2 + 91 + 10;
+        int startY = screenHeight - 22;
 
+        // 先收集所有有耐久度的装备
+        java.util.List<ItemStack> durableItems = new java.util.ArrayList<>();
         for (EquipmentSlot slot : armorSlots) {
             ItemStack stack = player.getEquippedStack(slot);
             if (!stack.isEmpty() && stack.isDamageable()) {
-                int durability = stack.getMaxDamage() - stack.getDamage();
-                drawContext.drawItem(stack, xPos, yPos);
-                String durabilityText = String.valueOf(durability);
-                int width = textRenderer.getWidth(durabilityText);
-                drawContext.drawText(textRenderer, durabilityText, xPos + 20 - width, yPos + 5, 0xFFFFFF, true);
-                yPos += 20;
+                durableItems.add(stack);
             }
         }
-
-        // 可选：绘制副手物品（如有需求）
-        ItemStack offHandStack = player.getOffHandStack();
-        if (!offHandStack.isEmpty() && offHandStack.isDamageable()) {
-            int durability = offHandStack.getMaxDamage() - offHandStack.getDamage();
-            drawContext.drawItem(offHandStack, xPos, yPos);
-            String durabilityText = String.valueOf(durability);
-            int width = textRenderer.getWidth(durabilityText);
-            drawContext.drawText(textRenderer, durabilityText, xPos + 20 - width, yPos + 5, 0xFFFFFF, true);
+        // 从下往上渲染（倒序）
+        for (int i = 0; i < durableItems.size(); i++) {
+            ItemStack stack = durableItems.get(i);
+            // 计算当前行的Y位置（从baseY开始往上）
+            int currentY = startY - (i * 20); // 每行间距20像素，向上排列
+            // 渲染物品图标
+            drawContext.drawItem(stack, startX, currentY);
+            // 计算并渲染耐久度文本
+            int maxDamage = stack.getMaxDamage();
+            int durability = stack.getMaxDamage() - stack.getDamage();
+            String durabilityText = String.format("%d/%d", durability, maxDamage);
+            // 耐久度文本显示在物品图标右侧
+            int textX = startX + 20; // 物品图标宽度是16像素，加4像素间距
+            int textY = currentY + 5; // 垂直居中对齐
+            drawContext.drawTextWithShadow(textRenderer, durabilityText, textX, textY, color);
         }
     }
 
-
-
-    private void renderFPS(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, MinecraftClient client) {
-        int fps = "unspecified".equals(client.fpsDebugString) ? -1 : Integer.parseInt(client.fpsDebugString.split(" ")[0]);
-        drawContext.drawText(textRenderer, "FPS:  ", xPos, yPos, color, true);
-        int width = textRenderer.getWidth("FPS: ");
-        width += textRenderer.getWidth(" ");
-        drawContext.drawText(textRenderer, fps == -1 ? "未知" : String.valueOf(fps), width, yPos, DEFAULT_COLOR, true);
+    private void renderRemark(DrawContext drawContext) {
+        if (!config.remark) return;
+        String versionLabel = "版本：";
+        String versionValue = client.getGameVersion();
+        int y = 2;
+        int x = client.getWindow().getScaledWidth() - textRenderer.getWidth(versionLabel + versionValue) - 2;
+        drawContext.drawTextWithShadow(textRenderer, versionLabel, x, y, color);
+        x += textRenderer.getWidth(versionLabel);
+        drawContext.drawTextWithShadow(textRenderer, versionValue, x, y, DEFAULT_COLOR);
     }
 
-    private void renderTimeAndDays(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, World world) {
+
+    private int renderFPS(DrawContext drawContext, int x, int y) {
+        if (!config.showFPS) return 0;
+        int fps = "unspecified".equals(client.fpsDebugString) ? -1 : Integer.parseInt(client.fpsDebugString.split(" ")[0]);
+        String fpsText = "FPS: ";
+        drawContext.drawTextWithShadow(textRenderer, fpsText, x, y, color);
+        int width = textRenderer.getWidth(fpsText);
+        drawContext.drawTextWithShadow(textRenderer, fps == -1 ? "未知" : String.valueOf(fps), x + width, y, DEFAULT_COLOR);
+        return DEFAULT_HEIGHT;
+    }
+
+    private int renderTimeAndDays(DrawContext drawContext, int x, int y) {
+        if (!config.showTimeAndDays) return 0;
+        ClientPlayerEntity player = client.player;
+        if (player == null) return 0;
+        World world = player.getWorld();
+
         long timeOfDay = world.getTimeOfDay() % 24000;
         // 时间为0的时候对应的是6:00
         int hours = (int) ((6 + (timeOfDay / 1000)) % 24);
         int minutes = (int) ((timeOfDay % 1000) * 60 / 1000);
         int days = (int) (world.getTimeOfDay() / 24000);
+        String daysText = "天数: ";
+        drawContext.drawTextWithShadow(textRenderer, daysText, x, y, color);
+        int width = textRenderer.getWidth(daysText);
+        drawContext.drawTextWithShadow(textRenderer, String.valueOf(days), x + width, y, DEFAULT_COLOR);
+        width += textRenderer.getWidth(String.valueOf(days));
 
-        drawContext.drawText(textRenderer, "天数: ", xPos, yPos, color, true);
-        int width = textRenderer.getWidth("天数: ");
-        drawContext.drawText(textRenderer, String.valueOf(days), xPos + width, yPos, DEFAULT_COLOR, true);
+        String timeText = "  时间: ";
+        drawContext.drawTextWithShadow(textRenderer, timeText, x + width, y, color);
+        width += textRenderer.getWidth(timeText);
 
-        width += textRenderer.getWidth(String.valueOf(days)) + textRenderer.getWidth("  时间: ");
-        drawContext.drawText(textRenderer, "  时间: ", xPos + textRenderer.getWidth("天数: ") + textRenderer.getWidth(String.valueOf(days)), yPos, color, true);
-        drawContext.drawText(textRenderer, String.format("%02d:%02d", hours, minutes), xPos + width, yPos, DEFAULT_COLOR, true);
+        String formatDate = String.format("%02d:%02d", hours, minutes);
+        drawContext.drawTextWithShadow(textRenderer, formatDate, x + width, y, DEFAULT_COLOR);
+        return DEFAULT_HEIGHT;
     }
 
-    private void renderCoordinates(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, BlockPos pos, World world) {
+    private int renderCoordinates(DrawContext drawContext, int x, int y) {
+        if (!config.showCoordinates) return 0;
+        ClientPlayerEntity player = client.player;
+        if (player == null) return 0;
+        BlockPos pos = player.getBlockPos(); // 获取玩家的方块位置
         String directionString = getDirectionString();
+        String xyzText = "XYZ: ";
+        drawContext.drawTextWithShadow(textRenderer, xyzText, x, y, color);
+        int width = textRenderer.getWidth(xyzText);
         String xyz = String.format("%d %d %d - %s", pos.getX(), pos.getY(), pos.getZ(), directionString);
-        drawContext.drawText(textRenderer, "XYZ: ", xPos, yPos, color, true);
-        int width = textRenderer.getWidth("XYZ: ");
-        drawContext.drawText(textRenderer, xyz, xPos + width, yPos, DEFAULT_COLOR, true);
+        drawContext.drawTextWithShadow(textRenderer, xyz, x + width, y, DEFAULT_COLOR);
+        return DEFAULT_HEIGHT;
     }
+
+
+    private int renderNetherCoordinates(DrawContext drawContext, int x, int y) {
+        if (!config.showNetherCoordinates) return 0;
+        ClientPlayerEntity player = client.player;
+        if (player == null) return 0;
+        World world = player.getWorld();
+        BlockPos pos = player.getBlockPos();
+
+        String coordinateText = "";
+        if (world.getRegistryKey().getValue().equals(World.OVERWORLD.getValue())) {
+            coordinateText = String.format("%d %d", pos.getX() / 8, pos.getZ() / 8);
+        } else if (world.getRegistryKey().getValue().equals(World.NETHER.getValue())) {
+            coordinateText = String.format("%d %d", pos.getX() * 8, pos.getZ() * 8);
+        }
+
+        String coordinateLabel = "N-XZ: ";
+        drawContext.drawTextWithShadow(textRenderer, coordinateLabel, x, y, color);
+        int width = textRenderer.getWidth(coordinateLabel);
+        drawContext.drawTextWithShadow(textRenderer, coordinateText, x + width, y, DEFAULT_COLOR);
+        return DEFAULT_HEIGHT;
+    }
+
+    private int renderBiome(DrawContext drawContext, int x, int y) {
+        if (!config.showBiome) return 0;
+        ClientPlayerEntity player = client.player;
+        if (player == null) return 0;
+        World world = player.getWorld();
+        BlockPos pos = player.getBlockPos();
+
+        RegistryEntry<Biome> biomeEntry = world.getBiome(pos);
+        Identifier biomeId = biomeEntry.getKey().map(RegistryKey::getValue).orElse(null);
+        String biomeName;
+        if (biomeId == null) {
+            biomeName = "未知生物群系";
+        } else {
+            // 获取本地化翻译文本，比如 "biome.minecraft.plains" -> 平原
+            String translationKey = "biome." + biomeId.getNamespace() + "." + biomeId.getPath();
+            biomeName = Text.translatable(translationKey).getString();
+        }
+        String biomeLabel = "生物群系: ";
+        drawContext.drawTextWithShadow(textRenderer, biomeLabel, x, y, color);
+        int width = textRenderer.getWidth(biomeLabel);
+        drawContext.drawTextWithShadow(textRenderer, biomeName, x + width, y, DEFAULT_COLOR);
+        return DEFAULT_HEIGHT;
+    }
+
 
     private String getDirectionString() {
         Direction direction = null;
@@ -212,40 +254,4 @@ public class HudOverlay implements HudElement {
         return directionString;
     }
 
-    private void renderNetherCoordinates(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, int x, int z, World world) {
-        String n_xz = "";
-        if (world.getRegistryKey().getValue().equals(World.OVERWORLD.getValue())) {
-            n_xz = String.format("%d %d", x / 8, z / 8);
-        } else if (world.getRegistryKey().getValue().equals(World.NETHER.getValue())) {
-            n_xz = String.format("%d %d", x * 8, z * 8);
-        }
-        drawContext.drawText(textRenderer, "N-XZ: ", xPos, yPos, color, true);
-        int width = textRenderer.getWidth("N-XZ: ");
-        drawContext.drawText(textRenderer, n_xz, xPos + width, yPos, DEFAULT_COLOR, true);
-    }
-
-    private void renderBiome(DrawContext drawContext, TextRenderer textRenderer, int xPos, int yPos, BlockPos pos, World world) {
-        RegistryEntry<Biome> biomeEntry = world.getBiome(pos);
-        Identifier biomeId = biomeEntry.getKey().map(RegistryKey::getValue).orElse(null);
-
-        String biomeName;
-        if (biomeId == null) {
-            biomeName = "未知生物群系";
-        } else {
-            // 获取本地化翻译文本，比如 "biome.minecraft.plains" -> 平原
-            String translationKey = "biome." + biomeId.getNamespace() + "." + biomeId.getPath();
-            biomeName = Text.translatable(translationKey).getString(); // 获取翻译后的中文名
-        }
-
-//        String biomeName = biomeId == null ? "未知生物群系" : biomeId.getPath();
-        drawContext.drawText(textRenderer, "生物群系: ", xPos, yPos, color, true);
-        int width = textRenderer.getWidth("生物群系: ");
-        int xPosWithWidth = xPos + width;
-        drawContext.drawText(textRenderer, biomeName, xPosWithWidth, yPos, DEFAULT_COLOR, true);
-    }
-
-    @Override
-    public void render(DrawContext context, RenderTickCounter tickCounter) {
-        onHudRender(context, 0);
-    }
 }

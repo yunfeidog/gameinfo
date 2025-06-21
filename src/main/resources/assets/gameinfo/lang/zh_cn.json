@@ -1,4 +1,5 @@
 {
   "key.gameinfo.open_gui": "打开游戏信息GUI",
+  "key.gameinfo.toggle_hud": "控制HUD显示",
   "category.gameinfo": "游戏信息"
 } 

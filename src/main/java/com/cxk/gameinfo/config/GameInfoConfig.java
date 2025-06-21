@@ -24,6 +24,8 @@ public class GameInfoConfig {
     public boolean showEquipment = true;
     private static final String CONFIG_FILE = "config" + File.separator + "gameinfo.properties";
 
+    public boolean enabled = true; // 是否启用游戏信息显示
+
     public GameInfoConfig() {
         loadConfig();
     }
