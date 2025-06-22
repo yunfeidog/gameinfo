@@ -8,6 +8,3 @@ loader_version=0.16.10
 fabric_version=0.119.6+1.21.5
 ```
 
-
-todo:
-+ 添加生物血量展示

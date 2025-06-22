@@ -3,6 +3,7 @@ package com.cxk.gameinfo;
 import com.cxk.gameinfo.command.GameInfoCommand;
 import com.cxk.gameinfo.config.GameInfoConfig;
 import com.cxk.gameinfo.hud.BlockInfoHudRenderer;
+import com.cxk.gameinfo.hud.EntityHealthHudRenderer;
 import com.cxk.gameinfo.hud.HudOverlay;
 import com.cxk.gameinfo.keybind.KeybindHandler;
 import com.cxk.gameinfo.renderer.FurnaceEventHandler;
@@ -22,6 +23,7 @@ public class GameinfoClient implements ClientModInitializer {
     public static GameInfoCommand command = new GameInfoCommand(); // 注册指令
     public static HudOverlay hudOverlay = new HudOverlay(); // 创建HUD覆盖层
     public static BlockInfoHudRenderer blockInfoHudRenderer = new BlockInfoHudRenderer(); // 创建方块信息HUD渲染器
+    public static EntityHealthHudRenderer entityHealthHudRenderer =new EntityHealthHudRenderer(); // 创建实体血量HUD渲染器
 
     @Override
     public void onInitializeClient() {
@@ -29,6 +31,7 @@ public class GameinfoClient implements ClientModInitializer {
         KeybindHandler.register(); // 注册按键绑定
         HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, Identifier.of(modName, "custom_text"), hudOverlay); // 注册HUD元素
         HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, Identifier.of(modName, "block_info"), blockInfoHudRenderer); // 注册方块信息HUD元素
+        HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, Identifier.of(modName, "entity_health"), entityHealthHudRenderer); // 注册实体血量HUD元素
         BlockEntityRendererFactories.register(BlockEntityType.FURNACE, FurnaceItemRenderer::new);
         FurnaceEventHandler.registerEvents();
     }
