@@ -24,20 +24,29 @@ public class GameInfoConfigScreen extends Screen {
     private TextFieldWidget yPosField;
     private ButtonWidget colorButton;
 
-
     private String currentColorName = "黄色"; // 默认颜色名
 
     public GameInfoConfigScreen(Screen parent) {
         super(Text.literal("游戏信息配置"));
         this.parent = parent;
         this.config = GameinfoClient.config;
-
-        // 根据当前颜色设置颜色名
         updateColorName();
     }
 
+    // 创建颜色选择按钮
+    private ButtonWidget createColorButton(String labelPrefix, int x, int y, int width, int height) {
+        return ButtonWidget.builder(
+                        Text.literal(labelPrefix + ": " + currentColorName),
+                        button -> this.client.setScreen(new ColorPickerScreen(this, (color, colorName) -> {
+                            config.color = color;
+                            currentColorName = colorName;
+                            button.setMessage(Text.literal(labelPrefix + ": " + colorName));
+                        })))
+                .dimensions(x, y, width, height)
+                .build();
+    }
+
     private void updateColorName() {
-        // 根据颜色值确定颜色名称
         switch (config.color) {
             case 0xFFFFFFFF -> currentColorName = "白色";
             case 0xFFFFFF00 -> currentColorName = "黄色";
@@ -59,120 +68,56 @@ public class GameInfoConfigScreen extends Screen {
         int buttonHeight = 20;
         int spacing = 25;
 
-        // 显示选项按钮
-        this.fpsButton = this.addDrawableChild(ButtonWidget.builder(
-                        Text.literal("帧数显示: " + (config.showFPS ? "开启" : "关闭")),
-                        button -> {
-                            config.showFPS = !config.showFPS;
-                            button.setMessage(Text.literal("帧数显示: " + (config.showFPS ? "开启" : "关闭")));
-                        })
-                .dimensions(centerX - buttonWidth / 2, startY, buttonWidth, buttonHeight)
-                .build());
+        // 使用GuiHelper创建开关按钮
+        this.fpsButton = this.addDrawableChild(GuiHelper.createToggleButton(
+                "帧数显示", () -> config.showFPS, value -> config.showFPS = value,
+                centerX - buttonWidth / 2, startY, buttonWidth, buttonHeight));
 
-        this.timeButton = this.addDrawableChild(ButtonWidget.builder(
-                        Text.literal("时间显示: " + (config.showTimeAndDays ? "开启" : "关闭")),
-                        button -> {
-                            config.showTimeAndDays = !config.showTimeAndDays;
-                            button.setMessage(Text.literal("时间显示: " + (config.showTimeAndDays ? "开启" : "关闭")));
-                        })
-                .dimensions(centerX - buttonWidth / 2, startY + spacing, buttonWidth, buttonHeight)
-                .build());
+        this.timeButton = this.addDrawableChild(GuiHelper.createToggleButton(
+                "时间显示", () -> config.showTimeAndDays, value -> config.showTimeAndDays = value,
+                centerX - buttonWidth / 2, startY + spacing, buttonWidth, buttonHeight));
 
-        this.coordButton = this.addDrawableChild(ButtonWidget.builder(
-                        Text.literal("坐标显示: " + (config.showCoordinates ? "开启" : "关闭")),
-                        button -> {
-                            config.showCoordinates = !config.showCoordinates;
-                            button.setMessage(Text.literal("坐标显示: " + (config.showCoordinates ? "开启" : "关闭")));
-                        })
-                .dimensions(centerX - buttonWidth / 2, startY + spacing * 2, buttonWidth, buttonHeight)
-                .build());
+        this.coordButton = this.addDrawableChild(GuiHelper.createToggleButton(
+                "坐标显示", () -> config.showCoordinates, value -> config.showCoordinates = value,
+                centerX - buttonWidth / 2, startY + spacing * 2, buttonWidth, buttonHeight));
 
-        this.netherButton = this.addDrawableChild(ButtonWidget.builder(
-                        Text.literal("下界坐标: " + (config.showNetherCoordinates ? "开启" : "关闭")),
-                        button -> {
-                            config.showNetherCoordinates = !config.showNetherCoordinates;
-                            button.setMessage(Text.literal("下界坐标: " + (config.showNetherCoordinates ? "开启" : "关闭")));
-                        })
-                .dimensions(centerX - buttonWidth / 2, startY + spacing * 3, buttonWidth, buttonHeight)
-                .build());
+        this.netherButton = this.addDrawableChild(GuiHelper.createToggleButton(
+                "下界坐标", () -> config.showNetherCoordinates, value -> config.showNetherCoordinates = value,
+                centerX - buttonWidth / 2, startY + spacing * 3, buttonWidth, buttonHeight));
 
-        this.biomeButton = this.addDrawableChild(ButtonWidget.builder(
-                        Text.literal("群系显示: " + (config.showBiome ? "开启" : "关闭")),
-                        button -> {
-                            config.showBiome = !config.showBiome;
-                            button.setMessage(Text.literal("群系显示: " + (config.showBiome ? "开启" : "关闭")));
-                        })
-                .dimensions(centerX - buttonWidth / 2, startY + spacing * 4, buttonWidth, buttonHeight)
-                .build());
+        this.biomeButton = this.addDrawableChild(GuiHelper.createToggleButton(
+                "群系显示", () -> config.showBiome, value -> config.showBiome = value,
+                centerX - buttonWidth / 2, startY + spacing * 4, buttonWidth, buttonHeight));
 
-        this.showEquipmentButton = this.addDrawableChild(ButtonWidget.builder(
-                        Text.literal("装备显示: " + (config.showEquipment ? "开启" : "关闭")),
-                        button -> {
-                            config.showEquipment = !config.showEquipment;
-                            button.setMessage(Text.literal("装备显示: " + (config.showEquipment ? "开启" : "关闭")));
-                        })
-                .dimensions(centerX - buttonWidth / 2, startY + spacing * 5, buttonWidth, buttonHeight)
-                .build());
+        this.showEquipmentButton = this.addDrawableChild(GuiHelper.createToggleButton(
+                "装备显示", () -> config.showEquipment, value -> config.showEquipment = value,
+                centerX - buttonWidth / 2, startY + spacing * 5, buttonWidth, buttonHeight));
 
-        this.remarkButton = this.addDrawableChild(ButtonWidget.builder(
-                        Text.literal("版本显示: " + (config.remark ? "开启" : "关闭")),
-                        button -> {
-                            config.remark = !config.remark;
-                            button.setMessage(Text.literal("版本显示: " + (config.remark ? "开启" : "关闭")));
-                        })
-                .dimensions(centerX - buttonWidth / 2, startY + spacing * 5, buttonWidth, buttonHeight)
-                .build());
+        this.remarkButton = this.addDrawableChild(GuiHelper.createToggleButton(
+                "版本显示", () -> config.remark, value -> config.remark = value,
+                centerX - buttonWidth / 2, startY + spacing * 6, buttonWidth, buttonHeight));
 
+        // 使用GuiHelper创建数字输入框
+        this.xPosField = this.addDrawableChild(GuiHelper.createNumberField(
+                this.textRenderer, "X位置", () -> config.xPos, value -> config.xPos = value,
+                centerX - 80, startY + spacing * 7, 60, 20));
 
-        // X Y位置设置
-        this.xPosField = new TextFieldWidget(this.textRenderer, centerX - 80, startY + spacing * 6, 60, 20, Text.literal("X位置"));
-        this.xPosField.setText(String.valueOf(config.xPos));
-        this.xPosField.setChangedListener(text -> {
-            try {
-                config.xPos = Integer.parseInt(text);
-            } catch (NumberFormatException ignored) {
-            }
-        });
-        this.addDrawableChild(this.xPosField);
+        this.yPosField = this.addDrawableChild(GuiHelper.createNumberField(
+                this.textRenderer, "Y位置", () -> config.yPos, value -> config.yPos = value,
+                centerX + 20, startY + spacing * 8, 60, 20));
 
-        this.yPosField = new TextFieldWidget(this.textRenderer, centerX + 20, startY + spacing * 6, 60, 20, Text.literal("Y位置"));
-        this.yPosField.setText(String.valueOf(config.yPos));
-        this.yPosField.setChangedListener(text -> {
-            try {
-                config.yPos = Integer.parseInt(text);
-            } catch (NumberFormatException ignored) {
-            }
-        });
-        this.addDrawableChild(this.yPosField);
+        // 使用自定义方法创建颜色选择按钮
+        this.colorButton = this.addDrawableChild(createColorButton(
+                "选择颜色", centerX - buttonWidth / 2, startY + spacing * 7, buttonWidth, buttonHeight));
 
-        // 颜色选择按钮 - 打开颜色选择器
-        this.colorButton = this.addDrawableChild(ButtonWidget.builder(
-                        Text.literal("选择颜色: " + currentColorName),
-                        button -> {
-                            this.client.setScreen(new ColorPickerScreen(this, (color, colorName) -> {
-                                config.color = color;
-                                currentColorName = colorName;
-                                button.setMessage(Text.literal("选择颜色: " + colorName));
-                            }));
-                        })
-                .dimensions(centerX - buttonWidth / 2, startY + spacing * 7, buttonWidth, buttonHeight)
-                .build());
+        // 使用GuiHelper创建保存和取消按钮
+        this.addDrawableChild(GuiHelper.createButton("保存设置", () -> {
+            config.saveConfig();
+            this.close();
+        }, centerX - 105, startY + spacing * 8 + 10, 100, 20));
 
-        // 保存和取消按钮
-        this.addDrawableChild(ButtonWidget.builder(
-                        Text.literal("保存设置"),
-                        button -> {
-                            config.saveConfig();
-                            this.close();
-                        })
-                .dimensions(centerX - 105, startY + spacing * 8 + 10, 100, 20)
-                .build());
-
-        this.addDrawableChild(ButtonWidget.builder(
-                        Text.literal("取消"),
-                        button -> this.close())
-                .dimensions(centerX + 5, startY + spacing * 8 + 10, 100, 20)
-                .build());
+        this.addDrawableChild(GuiHelper.createButton("取消", this::close,
+                centerX + 5, startY + spacing * 8 + 10, 100, 20));
     }
 
     @Override
@@ -180,7 +125,7 @@ public class GameInfoConfigScreen extends Screen {
         super.render(context, mouseX, mouseY, delta);
 
         // 绘制标题
-        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 20, 0xFFFFFF);
+        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 20, 0xFFFFFFFF);
 
         int centerX = this.width / 2;
         int startY = 40;
@@ -188,8 +133,8 @@ public class GameInfoConfigScreen extends Screen {
         int buttonWidth = 200;
 
         // 绘制X和Y输入框的标签
-        context.drawTextWithShadow(this.textRenderer, "X坐标:", centerX - 115, startY + spacing * 6 + 5, 0xFFFFFF);
-        context.drawTextWithShadow(this.textRenderer, "Y坐标:", centerX - 15, startY + spacing * 6 + 5, 0xFFFFFF);
+        context.drawTextWithShadow(this.textRenderer, "X坐标:", centerX - 115, startY + spacing * 6 + 5, 0xFFFFFFFF);
+        context.drawTextWithShadow(this.textRenderer, "Y坐标:", centerX - 15, startY + spacing * 6 + 5, 0xFFFFFFFF);
 
         // 绘制颜色预览方块
         int colorPreviewX = centerX + buttonWidth / 2 - 25;
@@ -198,16 +143,6 @@ public class GameInfoConfigScreen extends Screen {
         context.drawBorder(colorPreviewX, colorPreviewY, 16, 16, 0xFF000000);
 
         // 绘制提示文本
-        context.drawCenteredTextWithShadow(this.textRenderer, "点击按钮进行设置，修改后记得保存", this.width / 2, this.height - 30, 0xAAAAAA);
-    }
-
-    @Override
-    public void close() {
-        this.client.setScreen(this.parent);
-    }
-
-    @Override
-    public boolean shouldPause() {
-        return false;
+        context.drawCenteredTextWithShadow(this.textRenderer, "点击按钮进行设置，修改后记得保存", this.width / 2, this.height - 30, 0xFFAAAAAA);
     }
 }
