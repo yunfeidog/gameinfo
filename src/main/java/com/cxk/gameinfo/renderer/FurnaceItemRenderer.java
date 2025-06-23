@@ -33,6 +33,9 @@ public class FurnaceItemRenderer implements BlockEntityRenderer<FurnaceBlockEnti
 
     @Override
     public void render(FurnaceBlockEntity furnaceBlockEntity, float tickProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, Vec3d cameraPos) {
+        // 检查配置是否启用熔炉信息显示
+        if (!com.cxk.gameinfo.GameinfoClient.config.showFurnaceInfo) return;
+        
         BlockPos pos = furnaceBlockEntity.getPos();
         World world = furnaceBlockEntity.getWorld();
         getFurnaceItemsFromServer(pos);

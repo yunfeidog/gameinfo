@@ -17,6 +17,9 @@ public class BlockInfoHudRenderer implements HudElement {
 
     @Override
     public void render(DrawContext drawContext, RenderTickCounter tickCounter) {
+        // 检查配置是否启用方块信息显示
+        if (!GameinfoClient.config.showBlockInfo) return;
+        
         MinecraftClient client = MinecraftClient.getInstance();
         // 确保客户端和世界存在
         if (client == null || client.world == null || client.player == null) return;

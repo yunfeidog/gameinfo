@@ -22,6 +22,9 @@ public class GameInfoConfig {
     public double scale = 0.5; // 文字
     public String version = "1.21.6";
     public boolean showEquipment = true;
+    public boolean showFurnaceInfo = true; // 是否显示熔炉信息
+    public boolean showEntityInfo = true; // 是否显示生物信息
+    public boolean showBlockInfo = true; // 是否显示方块信息
     private static final String CONFIG_FILE = "config" + File.separator + "gameinfo.properties";
 
     public boolean enabled = true; // 是否启用游戏信息显示
@@ -42,6 +45,9 @@ public class GameInfoConfig {
             showBiome = false;
             remark = false;
             showEquipment = false;
+            showFurnaceInfo = false;
+            showEntityInfo = false;
+            showBlockInfo = false;
         } else {
             loadConfig();
         }
@@ -68,6 +74,9 @@ public class GameInfoConfig {
             scale = Double.parseDouble(properties.getProperty("scale", "0.5"));
             version = properties.getProperty("version", "1.21.6");
             showEquipment = Boolean.parseBoolean(properties.getProperty("showEquipment", "true"));
+            showFurnaceInfo = Boolean.parseBoolean(properties.getProperty("showFurnaceInfo", "true"));
+            showEntityInfo = Boolean.parseBoolean(properties.getProperty("showEntityInfo", "true"));
+            showBlockInfo = Boolean.parseBoolean(properties.getProperty("showBlockInfo", "true"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -87,6 +96,9 @@ public class GameInfoConfig {
         properties.setProperty("scale", Double.toString(scale));
         properties.setProperty("version", version);
         properties.setProperty("showEquipment", Boolean.toString(showEquipment));
+        properties.setProperty("showFurnaceInfo", Boolean.toString(showFurnaceInfo));
+        properties.setProperty("showEntityInfo", Boolean.toString(showEntityInfo));
+        properties.setProperty("showBlockInfo", Boolean.toString(showBlockInfo));
         try (FileOutputStream output = new FileOutputStream(CONFIG_FILE)) {
             properties.store(output, null);
         } catch (IOException e) {

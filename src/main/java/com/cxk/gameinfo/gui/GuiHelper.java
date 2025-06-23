@@ -23,11 +23,11 @@ public class GuiHelper {
      */
     public static ButtonWidget createToggleButton(String labelPrefix, Supplier<Boolean> getter, Consumer<Boolean> setter, int x, int y, int width, int height) {
         return ButtonWidget.builder(
-                Text.literal(labelPrefix + ": " + (getter.get() ? "开启" : "关闭")),
+                Text.literal(labelPrefix + " " + (getter.get() ? "✓" : "✗")),
                 button -> {
                     boolean newValue = !getter.get();
                     setter.accept(newValue);
-                    button.setMessage(Text.literal(labelPrefix + ": " + (newValue ? "开启" : "关闭")));
+                    button.setMessage(Text.literal(labelPrefix + " " + (newValue ? "✓" : "✗")));
                 })
                 .dimensions(x, y, width, height)
                 .build();
