@@ -9,9 +9,9 @@ import com.cxk.gameinfo.keybind.KeybindHandler;
 import com.cxk.gameinfo.renderer.FurnaceEventHandler;
 import com.cxk.gameinfo.renderer.FurnaceItemRenderer;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.util.Identifier;
@@ -27,7 +27,7 @@ public class GameinfoClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        CommandRegistrationCallback.EVENT.register(command);
+        ClientCommandRegistrationCallback.EVENT.register(command);
         KeybindHandler.register(); // 注册按键绑定
         HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, Identifier.of(modName, "custom_text"), hudOverlay); // 注册HUD元素
         HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, Identifier.of(modName, "block_info"), blockInfoHudRenderer); // 注册方块信息HUD元素
