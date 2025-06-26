@@ -1,7 +1,6 @@
 package com.cxk.gameinfo.command;
 
 import com.cxk.gameinfo.GameinfoClient;
-import com.cxk.gameinfo.gui.GameInfoConfigScreen;
 import com.cxk.gameinfo.util.HexUtil;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -12,7 +11,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.ControlFlowAware;
 
@@ -22,14 +20,6 @@ public class GameInfoCommand implements ClientCommandRegistrationCallback {
     public void register(CommandDispatcher<FabricClientCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess) {
         // /gi 配置类命令
         LiteralArgumentBuilder<FabricClientCommandSource> gi = ClientCommandManager.literal("gi");
-
-        dispatcher.register(ClientCommandManager.literal("gi").executes(context -> {
-            MinecraftClient client = MinecraftClient.getInstance();
-            GameInfoConfigScreen screen = new GameInfoConfigScreen(client.currentScreen);
-            client.execute(() -> client.setScreen(screen));
-            return ControlFlowAware.Command.SINGLE_SUCCESS;
-        }));
-
 
         gi.then(ClientCommandManager.literal("帧数").then(ClientCommandManager.argument("state", BoolArgumentType.bool()).executes(ctx -> {
             GameinfoClient.config.showFPS = BoolArgumentType.getBool(ctx, "state");

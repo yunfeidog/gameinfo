@@ -2,7 +2,9 @@ package com.cxk.gameinfo.hud;
 
 import com.cxk.gameinfo.GameinfoClient;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
@@ -73,21 +75,23 @@ public class BlockInfoHudRenderer implements HudElement {
             ItemStack heldItem = client.player.getMainHandStack();
 
             // 检查工具有效性
-            String toolIcon = "";
             String progressText = "";
+            String toolIcon = "";
             if (!heldItem.isEmpty()) {
                 // 检查工具是否正确类型
                 boolean isCorrectTool = heldItem.isSuitableFor(blockState);
                 // 检查是否需要工具
                 boolean requiresTool = blockState.isToolRequired();
-
+                Block block = blockState.getBlock();
+                boolean isUnbreakableBlock = block == Blocks.BEDROCK || block == Blocks.BARRIER;
                 boolean canHarvest;
-                if (requiresTool) {
+                if (isUnbreakableBlock) {
+                    canHarvest = false;
+                } else if (requiresTool) {
                     canHarvest = isCorrectTool;
                 } else {
-                    canHarvest = true; // 不需要工具的方块总是可以挖掘
+                    canHarvest = true;
                 }
-
                 toolIcon = canHarvest ? " ✓" : " ✗";
             }
 
