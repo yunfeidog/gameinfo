@@ -22,9 +22,9 @@ public class GameInfoConfig {
     public double scale = 0.5; // 文字
     public String version = "1.21.6";
     public boolean showEquipment = true;
-    public boolean showFurnaceInfo = true; // 是否显示熔炉信息
-    public boolean showEntityInfo = true; // 是否显示生物信息
-    public boolean showBlockInfo = true; // 是否显示方块信息
+    public boolean showFurnaceInfo = false; // 是否显示熔炉信息
+    public boolean showEntityInfo = false; // 是否显示生物信息
+    public boolean showBlockInfo = false; // 是否显示方块信息
     private static final String CONFIG_FILE = "config" + File.separator + "gameinfo.properties";
 
     public boolean enabled = true; // 是否启用游戏信息显示
