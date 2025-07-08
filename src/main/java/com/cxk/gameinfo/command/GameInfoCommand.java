@@ -7,21 +7,22 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.command.ControlFlowAware;
+
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 
 public class GameInfoCommand {
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
+
+
+    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean b) {
         // hud fps [state: bool]
         dispatcher.register(CommandManager.literal("gameinfo").then(CommandManager.literal("帧数").then(CommandManager.argument("state", BoolArgumentType.bool()).executes(context -> {
             boolean state = BoolArgumentType.getBool(context, "state");
             GameInfoConfig config = GameinfoClient.config;
             config.showFPS = state;
             config.saveConfig();
-            return ControlFlowAware.Command.SINGLE_SUCCESS;
+            return 1; // 返回1表示命令执行成功
         }))));
 
         // hud time [state: bool]
@@ -30,7 +31,7 @@ public class GameInfoCommand {
             GameInfoConfig config = GameinfoClient.config;
             config.showTimeAndDays = state;
             config.saveConfig();
-            return ControlFlowAware.Command.SINGLE_SUCCESS;
+            return 1; // 返回1表示命令执行成功
         }))));
 
         // hud coordinates [state: bool]
@@ -39,7 +40,7 @@ public class GameInfoCommand {
             GameInfoConfig config = GameinfoClient.config;
             config.showCoordinates = state;
             config.saveConfig();
-            return ControlFlowAware.Command.SINGLE_SUCCESS;
+            return 1; // 返回1表示命令执行成功
         }))));
 
         // hud nether [state: bool]
@@ -48,7 +49,7 @@ public class GameInfoCommand {
             GameInfoConfig config = GameinfoClient.config;
             config.showNetherCoordinates = state;
             config.saveConfig();
-            return ControlFlowAware.Command.SINGLE_SUCCESS;
+            return 1; // 返回1表示命令执行成功
         }))));
 
         // hud biome [state: bool]
@@ -57,7 +58,7 @@ public class GameInfoCommand {
             GameInfoConfig config = GameinfoClient.config;
             config.showBiome = state;
             config.saveConfig();
-            return ControlFlowAware.Command.SINGLE_SUCCESS;
+            return 1; // 返回1表示命令执行成功
         }))));
 
         // hud x [position: int]
@@ -66,7 +67,7 @@ public class GameInfoCommand {
             GameInfoConfig config = GameinfoClient.config;
             config.xPos = position;
             config.saveConfig();
-            return ControlFlowAware.Command.SINGLE_SUCCESS;
+            return 1; // 返回1表示命令执行成功
         }))));
 
         // hud y [position: int]
@@ -75,7 +76,7 @@ public class GameInfoCommand {
             GameInfoConfig config = GameinfoClient.config;
             config.yPos = position;
             config.saveConfig();
-            return ControlFlowAware.Command.SINGLE_SUCCESS;
+            return 1; // 返回1表示命令执行成功
         }))));
 
         // hud color [color: string]
@@ -84,7 +85,7 @@ public class GameInfoCommand {
             GameInfoConfig config = GameinfoClient.config;
             config.color = Integer.decode("0x" + color);
             config.saveConfig();
-            return ControlFlowAware.Command.SINGLE_SUCCESS;
+            return 1; // 返回1表示命令执行成功
         }))));
 
         // hud  标注 [state: bool]
@@ -93,7 +94,7 @@ public class GameInfoCommand {
             GameInfoConfig config = GameinfoClient.config;
             config.remark = state;
             config.saveConfig();
-            return ControlFlowAware.Command.SINGLE_SUCCESS;
+            return 1; // 返回1表示命令执行成功
         }))));
 
         // hud 大小 [scale: double]
@@ -102,15 +103,14 @@ public class GameInfoCommand {
             GameInfoConfig config = GameinfoClient.config;
             config.scale = scale;
             config.saveConfig();
-            return ControlFlowAware.Command.SINGLE_SUCCESS;
+            return 1; // 返回1表示命令执行成功
         }))));
 
         // hud enable [state: bool]
         dispatcher.register(CommandManager.literal("gameinfo").then(CommandManager.literal("启用").then(CommandManager.argument("state", BoolArgumentType.bool()).executes(context -> {
             boolean state = BoolArgumentType.getBool(context, "state");
             GameInfoConfig config = GameinfoClient.config;
-            //todo
-            return ControlFlowAware.Command.SINGLE_SUCCESS;
+            return 1; // 返回1表示命令执行成功
         }))));
     }
 }

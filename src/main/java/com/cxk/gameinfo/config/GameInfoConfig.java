@@ -17,7 +17,7 @@ public class GameInfoConfig {
     public Integer yPos = 3; // y 坐标
     public boolean remark = true; // 是否显示备注
     public double scale = 0.5; // 文字
-    public String version = "1.21.5";
+    public String version = "1.16.4";
 
     private static final String CONFIG_FILE = "config" + File.separator + "gameinfo.properties";
 
