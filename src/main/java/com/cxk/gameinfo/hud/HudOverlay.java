@@ -157,7 +157,7 @@ public class HudOverlay implements HudElement {
 
     private int renderFPS(DrawContext drawContext, int x, int y) {
         if (!config.showFPS) return 0;
-        int fps = "unspecified".equals(client.fpsDebugString) ? -1 : Integer.parseInt(client.fpsDebugString.split(" ")[0]);
+        int fps = client.getCurrentFps();
         String fpsText = "FPS: ";
         drawContext.drawTextWithShadow(textRenderer, fpsText, x, y, color);
         int width = textRenderer.getWidth(fpsText);
@@ -169,7 +169,7 @@ public class HudOverlay implements HudElement {
         if (!config.showTimeAndDays) return 0;
         ClientPlayerEntity player = client.player;
         if (player == null) return 0;
-        World world = player.getWorld();
+        World world = player.getEntityWorld();
 
         long timeOfDay = world.getTimeOfDay() % 24000;
         // 时间为0的时候对应的是6:00
@@ -210,7 +210,7 @@ public class HudOverlay implements HudElement {
         if (!config.showNetherCoordinates) return 0;
         ClientPlayerEntity player = client.player;
         if (player == null) return 0;
-        World world = player.getWorld();
+        World world = player.getEntityWorld();
         BlockPos pos = player.getBlockPos();
 
         String coordinateText = "";
@@ -231,7 +231,7 @@ public class HudOverlay implements HudElement {
         if (!config.showBiome) return 0;
         ClientPlayerEntity player = client.player;
         if (player == null) return 0;
-        World world = player.getWorld();
+        World world = player.getEntityWorld();
         BlockPos pos = player.getBlockPos();
 
         RegistryEntry<Biome> biomeEntry = world.getBiome(pos);

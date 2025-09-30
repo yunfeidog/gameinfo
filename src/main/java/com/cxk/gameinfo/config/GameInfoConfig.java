@@ -20,7 +20,7 @@ public class GameInfoConfig {
     public Integer yPos = 3; // y 坐标
     public boolean remark = true; // 是否显示备注
     public double scale = 0.5; // 文字
-    public String version = "1.21.7";
+    public String version = "1.21.9";
     public boolean showEquipment = true;
     public boolean showFurnaceInfo = false; // 是否显示熔炉信息
     public boolean showEntityInfo = false; // 是否显示生物信息

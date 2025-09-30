@@ -148,7 +148,7 @@ public class ColorPickerScreen extends Screen {
         int bgWidth = 260;
         int bgHeight = 80;
         context.fill(bgX, customY - 5, bgX + bgWidth, customY + bgHeight, 0x30333333);
-        context.drawBorder(bgX, customY - 5, bgWidth, bgHeight, 0xFF666666);
+//        context.drawBorder(bgX, customY - 5, bgWidth, bgHeight, 0xFF666666);
 
         // 绘制标题
         context.drawCenteredTextWithShadow(this.textRenderer, "自定义颜色 (ARGB格式)", this.width / 2, customY + 8, 0xFFAAFFAA);
@@ -198,12 +198,12 @@ public class ColorPickerScreen extends Screen {
 
             // 绘制边框
             int borderColor = this.isHovered() ? 0xFFFFFFFF : 0xFF333333;
-            context.drawBorder(this.getX(), this.getY(), this.width, this.height, borderColor);
+//            context.drawBorder(this.getX(), this.getY(), this.width, this.height, borderColor);
 
             // 如果悬停，绘制高亮边框
-            if (this.isHovered()) {
-                context.drawBorder(this.getX() - 1, this.getY() - 1, this.width + 2, this.height + 2, 0xFFFFD700);
-            }
+//            if (this.isHovered()) {
+//                context.drawBorder(this.getX() - 1, this.getY() - 1, this.width + 2, this.height + 2, 0xFFFFD700);
+//            }
         }
     }
 } 

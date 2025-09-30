@@ -194,8 +194,8 @@ public class GameInfoConfigScreen extends Screen {
         int tabContentY = 60;
         int tabContentHeight = this.height - 110;
         context.fill(20, tabContentY, this.width - 20, tabContentY + tabContentHeight, 0x20000000);
-        context.drawBorder(20, tabContentY, this.width - 40, tabContentHeight, 0xFF666666);
-        
+//        context.drawBorder(20, tabContentY, this.width - 40, tabContentHeight, 0xFF666666);
+
         // 根据当前Tab绘制特定内容
         if (currentTab == 0) {
             renderInfoToggleTab(context);
@@ -223,7 +223,7 @@ public class GameInfoConfigScreen extends Screen {
         int bgWidth = 300;
         int bgHeight = 100;
         context.fill(bgX, bgY, bgX + bgWidth, bgY + bgHeight, 0x30333333);
-        context.drawBorder(bgX, bgY, bgWidth, bgHeight, 0xFF444444);
+//        context.drawBorder(bgX, bgY, bgWidth, bgHeight, 0xFF444444);
         
         // 绘制X和Y标签
         context.drawTextWithShadow(this.textRenderer, "X:", centerX - 85, startY + 4, 0xFFFFFFFF);
@@ -272,7 +272,7 @@ public class GameInfoConfigScreen extends Screen {
             context.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, bgColor);
             
             // 绘制边框（活跃Tab不绘制底边）
-            context.drawBorder(this.getX(), this.getY(), this.width, this.height, borderColor);
+//            context.drawBorder(this.getX(), this.getY(), this.width, this.height, borderColor);
             if (isActive) {
                 context.fill(this.getX() + 1, this.getY() + this.height - 1, this.getX() + this.width - 1, this.getY() + this.height, bgColor);
             }
