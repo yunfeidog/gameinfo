@@ -3,8 +3,8 @@
   "id": "gameinfo",
   "version": "${version}",
   "name": "gameinfo",
-  "description": "",
-  "authors": [],
+  "description": "信息显示[偏牧定制版]",
+  "authors": ["yunfei"],
   "contact": {
     "repo": "无"
   },

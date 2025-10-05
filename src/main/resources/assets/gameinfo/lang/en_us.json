@@ -1,5 +1,6 @@
 {
   "key.gameinfo.open_gui": "Open Game Info GUI",
   "key.gameinfo.toggle_hud": "Toggle HUD Display",
-  "category.gameinfo": "Game Info"
+  "category.gameinfo": "Game Info",
+  "key.category.minecraft.gameinfo": "Game Info"
 } 

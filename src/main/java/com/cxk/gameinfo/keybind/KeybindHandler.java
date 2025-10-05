@@ -1,6 +1,5 @@
 package com.cxk.gameinfo.keybind;
 
-import com.cxk.gameinfo.Gameinfo;
 import com.cxk.gameinfo.GameinfoClient;
 import com.cxk.gameinfo.gui.GameInfoConfigScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -15,7 +14,6 @@ public class KeybindHandler {
 
     public static void register() {
         registerOpenGui();
-        registerOpenGameInfo();
     }
 
     public static void registerOpenGui() {
@@ -33,18 +31,4 @@ public class KeybindHandler {
             }
         });
     }
-
-    public static void registerOpenGameInfo() {
-//        KeyBinding toggleHudKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-//                "key.gameinfo.toggle_hud",
-//                GLFW.GLFW_KEY_F1,
-//                KeyBinding.Category.create(Identifier.of(GameinfoClient.modName))
-//        ));
-//
-//        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-//            while (toggleHudKey.wasPressed()) {
-//                GameinfoClient.hudOverlay.toggleHudVisibility();
-//            }
-//        });
-    }
-} 
+}
