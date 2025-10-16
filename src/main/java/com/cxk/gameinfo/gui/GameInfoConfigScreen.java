@@ -32,6 +32,7 @@ public class GameInfoConfigScreen extends Screen {
     private ButtonWidget showFurnaceInfoButton;
     private ButtonWidget showEntityInfoButton;
     private ButtonWidget showBlockInfoButton;
+    private ButtonWidget enableButton;
     
     // 颜色设置Tab的组件
     private TextFieldWidget xPosField;
@@ -116,8 +117,11 @@ public class GameInfoConfigScreen extends Screen {
                 "下界坐标", () -> config.showNetherCoordinates, value -> config.showNetherCoordinates = value,
                 leftX, startY + spacing * 3, buttonWidth, buttonHeight));
 
-        this.showFurnaceInfoButton = this.addDrawableChild(GuiHelper.createToggleButton(
-                "熔炉信息", () -> config.showFurnaceInfo, value -> config.showFurnaceInfo = value,
+//        this.showFurnaceInfoButton = this.addDrawableChild(GuiHelper.createToggleButton(
+//                "熔炉信息", () -> config.showFurnaceInfo, value -> config.showFurnaceInfo = value,
+//                leftX, startY + spacing * 4, buttonWidth, buttonHeight));
+        this.enableButton = this.addDrawableChild(GuiHelper.createToggleButton(
+                "启用显示", () -> config.enabled, value -> config.enabled = value,
                 leftX, startY + spacing * 4, buttonWidth, buttonHeight));
 
         // 右列
