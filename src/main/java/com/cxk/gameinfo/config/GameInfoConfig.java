@@ -1,6 +1,8 @@
 package com.cxk.gameinfo.config;
 
+import com.cxk.gameinfo.GameinfoClient;
 import com.cxk.gameinfo.util.HexUtil;
+import com.google.gson.Gson;
 import net.minecraft.util.Colors;
 
 import java.io.File;
@@ -50,6 +52,7 @@ public class GameInfoConfig {
             showBlockInfo = false;
         } else {
             loadConfig();
+            GameinfoClient.logger("加载到配置文件"+ new Gson().toJson(this));
         }
     }
 
