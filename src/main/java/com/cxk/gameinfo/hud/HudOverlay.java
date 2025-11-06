@@ -3,6 +3,7 @@ package com.cxk.gameinfo.hud;
 import com.cxk.gameinfo.GameinfoClient;
 import com.cxk.gameinfo.config.GameInfoConfig;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -146,7 +147,7 @@ public class HudOverlay implements HudElement {
     private void renderRemark(DrawContext drawContext) {
         if (!config.remark) return;
         String versionLabel = "版本：";
-        String versionValue = config.version;
+        String versionValue = SharedConstants.getGameVersion().name();
         int y = 2;
         int x = client.getWindow().getScaledWidth() - textRenderer.getWidth(versionLabel + versionValue) - 2;
         drawContext.drawTextWithShadow(textRenderer, versionLabel, x, y, color);
