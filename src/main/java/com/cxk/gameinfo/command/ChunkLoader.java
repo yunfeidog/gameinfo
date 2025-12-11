@@ -26,7 +26,7 @@ public class ChunkLoader implements CommandRegistrationCallback {
     @Override
     public void register(CommandDispatcher<ServerCommandSource> commandDispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
         commandDispatcher.register(CommandManager.literal("chunk")
-                .requires(source -> source.hasPermissionLevel(2))
+//                .requires(source -> source.hasper(2))
                 .then(CommandManager.literal("load")
                         .executes(this::loadChunk))
                 .then(CommandManager.literal("unload")

@@ -261,30 +261,31 @@ public class GameInfoConfigScreen extends Screen {
         private final boolean isActive;
         
         public TabButton(int x, int y, int width, int height, String text, boolean isActive, Runnable onPress) {
-            super(x, y, width, height, Text.literal(text), button -> onPress.run(), DEFAULT_NARRATION_SUPPLIER);
+            super(x, y, width, height, net.minecraft.text.Text.literal(text), button -> onPress.run(), DEFAULT_NARRATION_SUPPLIER);
             this.isActive = isActive;
         }
         
+
         @Override
-        public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+        protected void drawIcon(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
             // 根据状态选择颜色
             int bgColor = isActive ? 0xFF4A4A4A : 0xFF2A2A2A;
             int borderColor = isActive ? 0xFFFFFFFF : 0xFF666666;
             int textColor = isActive ? 0xFFFFD700 : 0xFFCCCCCC;
-            
+
             if (this.isHovered() && !isActive) {
                 bgColor = 0xFF3A3A3A;
             }
-            
+
             // 绘制Tab背景
             context.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, bgColor);
-            
+
             // 绘制边框（活跃Tab不绘制底边）
 //            context.drawBorder(this.getX(), this.getY(), this.width, this.height, borderColor);
             if (isActive) {
                 context.fill(this.getX() + 1, this.getY() + this.height - 1, this.getX() + this.width - 1, this.getY() + this.height, bgColor);
             }
-            
+
             // 绘制文本
             int textX = this.getX() + this.width / 2;
             int textY = this.getY() + (this.height - 8) / 2;

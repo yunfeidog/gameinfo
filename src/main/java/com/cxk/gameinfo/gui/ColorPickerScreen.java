@@ -187,12 +187,12 @@ public class ColorPickerScreen extends Screen {
         private final int color;
 
         public ColorButton(int x, int y, int width, int height, int color, PressAction onPress) {
-            super(x, y, width, height, Text.empty(), onPress, DEFAULT_NARRATION_SUPPLIER);
+            super(x, y, width, height, net.minecraft.text.Text.empty(), onPress, DEFAULT_NARRATION_SUPPLIER);
             this.color = color;
         }
 
         @Override
-        public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+        protected void drawIcon(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
             // 绘制颜色方块
             context.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, this.color);
 
