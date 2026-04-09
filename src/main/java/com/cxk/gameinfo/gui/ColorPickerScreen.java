@@ -1,11 +1,11 @@
 package com.cxk.gameinfo.gui;
 
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.text.Text;
-import net.minecraft.util.Colors;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.CommonColors;
 
 public class ColorPickerScreen extends Screen {
     private final Screen parent;
@@ -24,8 +24,8 @@ public class ColorPickerScreen extends Screen {
     };
 
     // 自定义颜色输入框
-    private TextFieldWidget colorInputField;
-    private ButtonWidget confirmCustomButton;
+    private EditBox colorInputField;
+    private Button confirmCustomButton;
     private int previewColor = 0xFFFFFFFF;
 
     public interface ColorSelectedCallback {
@@ -33,7 +33,7 @@ public class ColorPickerScreen extends Screen {
     }
 
     public ColorPickerScreen(Screen parent, ColorSelectedCallback callback) {
-        super(Text.literal("选择颜色"));
+        super(Component.literal("选择颜色"));
         this.parent = parent;
         this.callback = callback;
     }
@@ -62,10 +62,10 @@ public class ColorPickerScreen extends Screen {
             int y = startY + row * (colorSize + spacing);
 
             final int colorIndex = i;
-            this.addDrawableChild(new ColorButton(x, y, colorSize, colorSize, colorPalette[i],
+            this.addRenderableWidget(new ColorButton(x, y, colorSize, colorSize, colorPalette[i],
                     button -> {
                         callback.onColorSelected(colorPalette[colorIndex], "");
-                        this.close();
+                        this.onClose();
                     }));
         }
 
@@ -79,37 +79,37 @@ public class ColorPickerScreen extends Screen {
         int elementStartX = (this.width - totalElementWidth) / 2;
 
         // ARGB输入框
-        this.colorInputField = new TextFieldWidget(this.textRenderer,
+        this.colorInputField = new EditBox(this.font,
                 elementStartX, customY + 20, inputWidth, inputHeight,
-                Text.literal("ARGB颜色"));
-        this.colorInputField.setPlaceholder(Text.literal("FFFFFFFF"));
-        this.colorInputField.setText("FFFFFFFF");
-        this.colorInputField.setChangedListener(this::onColorInputChanged);
-        this.addDrawableChild(this.colorInputField);
+                Component.literal("ARGB颜色"));
+        this.colorInputField.setHint(Component.literal("FFFFFFFF"));
+        this.colorInputField.setValue("FFFFFFFF");
+        this.colorInputField.setResponder(this::onColorInputChanged);
+        this.addRenderableWidget(this.colorInputField);
 
         // 确认自定义颜色按钮
-        this.confirmCustomButton = this.addDrawableChild(ButtonWidget.builder(
-                        Text.literal("使用"),
+        this.confirmCustomButton = this.addRenderableWidget(Button.builder(
+                        Component.literal("使用"),
                         button -> {
                             try {
-                                String input = this.colorInputField.getText().trim();
+                                String input = this.colorInputField.getValue().trim();
                                 if (input.length() == 8) {
                                     int color = (int) Long.parseLong(input, 16);
                                     callback.onColorSelected(color, "");
-                                    this.close();
+                                    this.onClose();
                                 }
                             } catch (NumberFormatException e) {
                                 // 输入格式错误，不做任何操作
                             }
                         })
-                .dimensions(elementStartX + inputWidth + 25 + 20 + 10, customY + 20, 50, 20)
+                .bounds(elementStartX + inputWidth + 25 + 20 + 10, customY + 20, 50, 20)
                 .build());
 
         // 底部按钮
-        this.addDrawableChild(ButtonWidget.builder(
-                        Text.literal("取消"),
-                        button -> this.close())
-                .dimensions(elementStartX + inputWidth + 25 + 20 + 10, customY + 50, 50, 20)
+        this.addRenderableWidget(Button.builder(
+                        Component.literal("取消"),
+                        button -> this.onClose())
+                .bounds(elementStartX + inputWidth + 25 + 20 + 10, customY + 50, 50, 20)
                 .build());
     }
 
@@ -124,23 +124,23 @@ public class ColorPickerScreen extends Screen {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         // 绘制半透明背景
         context.fill(0, 0, this.width, this.height, 0x80000000);
 
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(context, mouseX, mouseY, delta);
 
         // 绘制标题
-        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 20, 0xFFFFD700);
+        context.centeredText(this.font, this.title, this.width / 2, 20, 0xFFFFD700);
 
         // 绘制预设颜色区域标题
-        context.drawCenteredTextWithShadow(this.textRenderer, "预设颜色", this.width / 2, 35, Colors.WHITE);
+        context.centeredText(this.font, "预设颜色", this.width / 2, 35, CommonColors.WHITE);
 
         // 绘制自定义颜色区域
         renderCustomColorArea(context);
     }
 
-    private void renderCustomColorArea(DrawContext context) {
+    private void renderCustomColorArea(GuiGraphicsExtractor context) {
         int customY = 50 + 4 * (32 + 8) - 8 + 25; // 与init中的customY保持一致
 
         // 绘制自定义颜色区域背景
@@ -151,7 +151,7 @@ public class ColorPickerScreen extends Screen {
 //        context.drawBorder(bgX, customY - 5, bgWidth, bgHeight, 0xFF666666);
 
         // 绘制标题
-        context.drawCenteredTextWithShadow(this.textRenderer, "自定义颜色 (ARGB格式)", this.width / 2, customY + 8, 0xFFAAFFAA);
+        context.centeredText(this.font, "自定义颜色 (ARGB格式)", this.width / 2, customY + 8, 0xFFAAFFAA);
 
         // 计算预览框位置（与init中的布局保持一致）
         int inputWidth = 100;
@@ -169,30 +169,30 @@ public class ColorPickerScreen extends Screen {
         context.fill(previewX, previewY, previewX + previewSize, previewY + previewSize, this.previewColor);
 
         // 绘制说明文本
-        context.drawTextWithShadow(this.textRenderer, "格式: AARRGGBB 例如: FFFF0000", this.width / 2 - 120, customY + 50, 0xFF888888);
+        context.text(this.font, "格式: AARRGGBB 例如: FFFF0000", this.width / 2 - 120, customY + 50, 0xFF888888);
     }
 
     @Override
-    public void close() {
-        this.client.setScreen(this.parent);
+    public void onClose() {
+        this.minecraft.setScreen(this.parent);
     }
 
     @Override
-    public boolean shouldPause() {
+    public boolean isPauseScreen() {
         return false;
     }
 
     // 自定义颜色按钮类
-    private static class ColorButton extends ButtonWidget {
+    private static class ColorButton extends Button {
         private final int color;
 
-        public ColorButton(int x, int y, int width, int height, int color, PressAction onPress) {
-            super(x, y, width, height, net.minecraft.text.Text.empty(), onPress, DEFAULT_NARRATION_SUPPLIER);
+        public ColorButton(int x, int y, int width, int height, int color, OnPress onPress) {
+            super(x, y, width, height, net.minecraft.network.chat.Component.empty(), onPress, DEFAULT_NARRATION);
             this.color = color;
         }
 
         @Override
-        protected void drawIcon(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
+        protected void extractContents(GuiGraphicsExtractor context, int mouseX, int mouseY, float deltaTicks) {
             // 绘制颜色方块
             context.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, this.color);
 

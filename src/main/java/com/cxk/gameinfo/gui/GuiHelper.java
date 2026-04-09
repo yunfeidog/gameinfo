@@ -1,12 +1,11 @@
 package com.cxk.gameinfo.gui;
 
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.text.Text;
-
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.Component;
 
 public class GuiHelper {
 
@@ -21,15 +20,15 @@ public class GuiHelper {
      * @param height 高度
      * @return 创建的按钮组件
      */
-    public static ButtonWidget createToggleButton(String labelPrefix, Supplier<Boolean> getter, Consumer<Boolean> setter, int x, int y, int width, int height) {
-        return ButtonWidget.builder(
-                Text.literal(labelPrefix + " " + (getter.get() ? "✓" : "✗")),
+    public static Button createToggleButton(String labelPrefix, Supplier<Boolean> getter, Consumer<Boolean> setter, int x, int y, int width, int height) {
+        return Button.builder(
+                Component.literal(labelPrefix + " " + (getter.get() ? "✓" : "✗")),
                 button -> {
                     boolean newValue = !getter.get();
                     setter.accept(newValue);
-                    button.setMessage(Text.literal(labelPrefix + " " + (newValue ? "✓" : "✗")));
+                    button.setMessage(Component.literal(labelPrefix + " " + (newValue ? "✓" : "✗")));
                 })
-                .dimensions(x, y, width, height)
+                .bounds(x, y, width, height)
                 .build();
     }
 
@@ -45,10 +44,10 @@ public class GuiHelper {
      * @param height 高度
      * @return 创建的输入框组件
      */
-    public static TextFieldWidget createNumberField(TextRenderer textRenderer, String placeholder, Supplier<Integer> getter, Consumer<Integer> setter, int x, int y, int width, int height) {
-        TextFieldWidget field = new TextFieldWidget(textRenderer, x, y, width, height, Text.literal(placeholder));
-        field.setText(String.valueOf(getter.get()));
-        field.setChangedListener(text -> {
+    public static EditBox createNumberField(Font textRenderer, String placeholder, Supplier<Integer> getter, Consumer<Integer> setter, int x, int y, int width, int height) {
+        EditBox field = new EditBox(textRenderer, x, y, width, height, Component.literal(placeholder));
+        field.setValue(String.valueOf(getter.get()));
+        field.setResponder(text -> {
             try {
                 setter.accept(Integer.parseInt(text));
             } catch (NumberFormatException ignored) {
@@ -69,10 +68,10 @@ public class GuiHelper {
      * @param height 高度
      * @return 创建的输入框组件
      */
-    public static TextFieldWidget createTextField(TextRenderer textRenderer, String placeholder, Supplier<String> getter, Consumer<String> setter, int x, int y, int width, int height) {
-        TextFieldWidget field = new TextFieldWidget(textRenderer, x, y, width, height, Text.literal(placeholder));
-        field.setText(getter.get());
-        field.setChangedListener(setter);
+    public static EditBox createTextField(Font textRenderer, String placeholder, Supplier<String> getter, Consumer<String> setter, int x, int y, int width, int height) {
+        EditBox field = new EditBox(textRenderer, x, y, width, height, Component.literal(placeholder));
+        field.setValue(getter.get());
+        field.setResponder(setter);
         return field;
     }
 
@@ -86,9 +85,9 @@ public class GuiHelper {
      * @param height 高度
      * @return 创建的按钮组件
      */
-    public static ButtonWidget createButton(String text, Runnable action, int x, int y, int width, int height) {
-        return ButtonWidget.builder(Text.literal(text), button -> action.run())
-                .dimensions(x, y, width, height)
+    public static Button createButton(String text, Runnable action, int x, int y, int width, int height) {
+        return Button.builder(Component.literal(text), button -> action.run())
+                .bounds(x, y, width, height)
                 .build();
     }
 
@@ -104,15 +103,15 @@ public class GuiHelper {
      * @param height 高度
      * @return 创建的按钮组件
      */
-    public static ButtonWidget createOptionButton(String labelPrefix, String[] options, Supplier<Integer> currentIndex, Consumer<Integer> setter, int x, int y, int width, int height) {
-        return ButtonWidget.builder(
-                Text.literal(labelPrefix + ": " + options[currentIndex.get()]),
+    public static Button createOptionButton(String labelPrefix, String[] options, Supplier<Integer> currentIndex, Consumer<Integer> setter, int x, int y, int width, int height) {
+        return Button.builder(
+                Component.literal(labelPrefix + ": " + options[currentIndex.get()]),
                 button -> {
                     int newIndex = (currentIndex.get() + 1) % options.length;
                     setter.accept(newIndex);
-                    button.setMessage(Text.literal(labelPrefix + ": " + options[newIndex]));
+                    button.setMessage(Component.literal(labelPrefix + ": " + options[newIndex]));
                 })
-                .dimensions(x, y, width, height)
+                .bounds(x, y, width, height)
                 .build();
     }
 
@@ -130,10 +129,10 @@ public class GuiHelper {
      * @param height 高度
      * @return 创建的输入框组件
      */
-    public static TextFieldWidget createValidatedNumberField(TextRenderer textRenderer, String placeholder, Supplier<Integer> getter, Consumer<Integer> setter, int min, int max, int x, int y, int width, int height) {
-        TextFieldWidget field = new TextFieldWidget(textRenderer, x, y, width, height, Text.literal(placeholder));
-        field.setText(String.valueOf(getter.get()));
-        field.setChangedListener(text -> {
+    public static EditBox createValidatedNumberField(Font textRenderer, String placeholder, Supplier<Integer> getter, Consumer<Integer> setter, int min, int max, int x, int y, int width, int height) {
+        EditBox field = new EditBox(textRenderer, x, y, width, height, Component.literal(placeholder));
+        field.setValue(String.valueOf(getter.get()));
+        field.setResponder(text -> {
             try {
                 int value = Integer.parseInt(text);
                 if (value >= min && value <= max) {
@@ -159,34 +158,34 @@ public class GuiHelper {
      * @param height 高度
      * @return 包含减少、显示、增加三个按钮的数组
      */
-    public static ButtonWidget[] createValueAdjustButtons(String labelPrefix, Supplier<Integer> getter, Consumer<Integer> setter, int min, int max, int step, int x, int y, int totalWidth, int height) {
+    public static Button[] createValueAdjustButtons(String labelPrefix, Supplier<Integer> getter, Consumer<Integer> setter, int min, int max, int step, int x, int y, int totalWidth, int height) {
         int buttonWidth = 30;
         int displayWidth = totalWidth - buttonWidth * 2;
         
-        ButtonWidget decreaseButton = ButtonWidget.builder(
-                Text.literal("-"),
+        Button decreaseButton = Button.builder(
+                Component.literal("-"),
                 button -> {
                     int newValue = Math.max(min, getter.get() - step);
                     setter.accept(newValue);
                 })
-                .dimensions(x, y, buttonWidth, height)
+                .bounds(x, y, buttonWidth, height)
                 .build();
 
-        ButtonWidget displayButton = ButtonWidget.builder(
-                Text.literal(labelPrefix + ": " + getter.get()),
+        Button displayButton = Button.builder(
+                Component.literal(labelPrefix + ": " + getter.get()),
                 button -> {})
-                .dimensions(x + buttonWidth, y, displayWidth, height)
+                .bounds(x + buttonWidth, y, displayWidth, height)
                 .build();
 
-        ButtonWidget increaseButton = ButtonWidget.builder(
-                Text.literal("+"),
+        Button increaseButton = Button.builder(
+                Component.literal("+"),
                 button -> {
                     int newValue = Math.min(max, getter.get() + step);
                     setter.accept(newValue);
                 })
-                .dimensions(x + buttonWidth + displayWidth, y, buttonWidth, height)
+                .bounds(x + buttonWidth + displayWidth, y, buttonWidth, height)
                 .build();
 
-        return new ButtonWidget[]{decreaseButton, displayButton, increaseButton};
+        return new Button[]{decreaseButton, displayButton, increaseButton};
     }
 } 

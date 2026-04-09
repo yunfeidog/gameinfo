@@ -3,13 +3,12 @@ package com.cxk.gameinfo.config;
 import com.cxk.gameinfo.GameinfoClient;
 import com.cxk.gameinfo.util.HexUtil;
 import com.google.gson.Gson;
-import net.minecraft.util.Colors;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
+import net.minecraft.util.CommonColors;
 
 public class GameInfoConfig {
     public boolean showFPS = true; // 是否显示FPS
@@ -17,7 +16,7 @@ public class GameInfoConfig {
     public boolean showCoordinates = true; // 是否显示坐标
     public boolean showNetherCoordinates = true; // 是否显示下届坐标
     public boolean showBiome = false; // 是否显示群系
-    public int color = Colors.YELLOW; // 文字颜色
+    public int color = CommonColors.YELLOW; // 文字颜色
     public Integer xPos = 3; // x 坐标
     public Integer yPos = 3; // y 坐标
     public boolean remark = true; // 是否显示备注

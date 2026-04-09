@@ -13,7 +13,7 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 
 
 public class GameinfoClient implements ClientModInitializer {
@@ -30,9 +30,9 @@ public class GameinfoClient implements ClientModInitializer {
         ClientCommandRegistrationCallback.EVENT.register(command);
         CommandRegistrationCallback.EVENT.register(chunkLoader);
         KeybindHandler.register(); // 注册按键绑定
-        HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, Identifier.of(modName, "custom_text"), hudOverlay); // 注册HUD元素
-        HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, Identifier.of(modName, "block_info"), blockInfoHudRenderer); // 注册方块信息HUD元素
-        HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, Identifier.of(modName, "entity_health"), entityHealthHudRenderer); // 注册实体血量HUD元素
+        HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, Identifier.fromNamespaceAndPath(modName, "custom_text"), hudOverlay); // 注册HUD元素
+        HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, Identifier.fromNamespaceAndPath(modName, "block_info"), blockInfoHudRenderer); // 注册方块信息HUD元素
+        HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, Identifier.fromNamespaceAndPath(modName, "entity_health"), entityHealthHudRenderer); // 注册实体血量HUD元素
 //        BlockEntityRendererFactories.register(BlockEntityType.FURNACE, FurnaceItemRenderer::new);
         FurnaceEventHandler.registerEvents();
     }

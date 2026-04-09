@@ -1,10 +1,9 @@
 package com.cxk.gameinfo.hud;
 
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.item.ItemStack;
-
 import java.util.HashMap;
 import java.util.Map;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
 
 public class DurabilityRecord {
     ItemStack itemStack;
@@ -38,7 +37,7 @@ public class DurabilityRecord {
      * 检查耐久度是否在30秒内有变化
      */
     public static boolean hasDurabilityChangedRecently(EquipmentSlot slot, ItemStack stack, long currentTime) {
-        int currentDurability = stack.getMaxDamage() - stack.getDamage();
+        int currentDurability = stack.getMaxDamage() - stack.getDamageValue();
         DurabilityRecord record = durabilityTracker.get(slot);
         if (record == null) {
             // 首次记录，认为是新装备，显示它
@@ -47,7 +46,7 @@ public class DurabilityRecord {
         }
 
         // 检查是否是同一件装备（通过比较ItemStack）
-        if (!ItemStack.areEqual(record.itemStack, stack)) {
+        if (!ItemStack.matches(record.itemStack, stack)) {
             // 装备发生了变化，更新记录
             durabilityTracker.put(slot, new DurabilityRecord(stack, currentDurability, currentTime));
             return true;

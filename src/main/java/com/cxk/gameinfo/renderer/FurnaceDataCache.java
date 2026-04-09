@@ -1,9 +1,9 @@
 package com.cxk.gameinfo.renderer;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
 import java.util.HashMap;
 import java.util.Map;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 
 public class FurnaceDataCache {
     private static final Map<BlockPos, FurnaceItems> furnaceData = new HashMap<>();

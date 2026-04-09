@@ -2,19 +2,18 @@ package com.cxk.gameinfo.hud;
 
 import com.cxk.gameinfo.GameinfoClient;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import java.lang.reflect.Field;
 
 public class BlockInfoHudRenderer implements HudElement {
@@ -24,7 +23,7 @@ public class BlockInfoHudRenderer implements HudElement {
     static {
         try {
             // 尝试获取currentBreakingProgress字段
-            currentBreakingProgressField = net.minecraft.client.network.ClientPlayerInteractionManager.class.getDeclaredField("currentBreakingProgress");
+            currentBreakingProgressField = net.minecraft.client.multiplayer.MultiPlayerGameMode.class.getDeclaredField("currentBreakingProgress");
             currentBreakingProgressField.setAccessible(true);
         } catch (Exception e) {
             // 如果反射失败，字段保持null
@@ -32,34 +31,34 @@ public class BlockInfoHudRenderer implements HudElement {
         }
     }
 
-    private float getPreciseBreakingProgress(MinecraftClient client) {
-        if (currentBreakingProgressField != null && client.interactionManager != null) {
+    private float getPreciseBreakingProgress(Minecraft client) {
+        if (currentBreakingProgressField != null && client.gameMode != null) {
             try {
-                return (Float) currentBreakingProgressField.get(client.interactionManager);
+                return (Float) currentBreakingProgressField.get(client.gameMode);
             } catch (Exception e) {
                 // 反射失败，回退到原方法
             }
         }
         // 回退到原来的方法
-        int intProgress = client.interactionManager.getBlockBreakingProgress();
+        int intProgress = client.gameMode.getDestroyStage();
         return intProgress >= 0 ? intProgress / 10.0f : -1.0f;
     }
 
     @Override
-    public void render(DrawContext drawContext, RenderTickCounter tickCounter) {
+    public void extractRenderState(GuiGraphicsExtractor drawContext, DeltaTracker tickCounter) {
         // 检查配置是否启用方块信息显示
         if (!GameinfoClient.config.showBlockInfo) return;
 
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         // 确保客户端和世界存在
-        if (client == null || client.world == null || client.player == null) return;
+        if (client == null || client.level == null || client.player == null) return;
         // 获取玩家正在看的目标
-        HitResult hitResult = client.crosshairTarget;
+        HitResult hitResult = client.hitResult;
 
         if (hitResult != null && hitResult.getType() == HitResult.Type.BLOCK) {
             BlockHitResult blockHitResult = (BlockHitResult) hitResult;
             BlockPos pos = blockHitResult.getBlockPos();
-            World world = client.world;
+            Level world = client.level;
             BlockState blockState = world.getBlockState(pos);
 
             // 获取方块对应的物品堆栈
@@ -72,16 +71,16 @@ public class BlockInfoHudRenderer implements HudElement {
             String positionInfo = String.format("%d, %d, %d", pos.getX(), pos.getY(), pos.getZ());
 
             // 获取玩家手持物品
-            ItemStack heldItem = client.player.getMainHandStack();
+            ItemStack heldItem = client.player.getMainHandItem();
 
             // 检查工具有效性
             String progressText = "";
             String toolIcon = "";
             if (!heldItem.isEmpty()) {
                 // 检查工具是否正确类型
-                boolean isCorrectTool = heldItem.isSuitableFor(blockState);
+                boolean isCorrectTool = heldItem.isCorrectToolForDrops(blockState);
                 // 检查是否需要工具
-                boolean requiresTool = blockState.isToolRequired();
+                boolean requiresTool = blockState.requiresCorrectToolForDrops();
                 Block block = blockState.getBlock();
                 boolean isUnbreakableBlock = block == Blocks.BEDROCK || block == Blocks.BARRIER;
                 boolean canHarvest;
@@ -105,16 +104,16 @@ public class BlockInfoHudRenderer implements HudElement {
             }
 
             // 获取屏幕尺寸
-            int screenWidth = client.getWindow().getScaledWidth();
+            int screenWidth = client.getWindow().getGuiScaledWidth();
 
             // 创建完整的物品名称（包含工具图标和进度）
             String fullBlockName = blockName + toolIcon + progressText;
-            Text nameText = Text.literal(fullBlockName);
-            Text posText = Text.literal(positionInfo);
+            Component nameText = Component.literal(fullBlockName);
+            Component posText = Component.literal(positionInfo);
 
             // 计算文本宽度
-            int nameWidth = client.textRenderer.getWidth(nameText);
-            int posWidth = client.textRenderer.getWidth(posText);
+            int nameWidth = client.font.width(nameText);
+            int posWidth = client.font.width(posText);
             int maxTextWidth = Math.max(nameWidth, posWidth);
 
             // 定义布局参数
@@ -164,36 +163,36 @@ public class BlockInfoHudRenderer implements HudElement {
             int posY = nameY + lineHeight; // 坐标位置
 
             // 绘制物品图标
-            drawContext.drawItem(itemStack, itemX, itemY);
+            drawContext.item(itemStack, itemX, itemY);
 
             // 绘制文本
             // 物品名称（淡白色），工具图标根据状态着色，进度百分比用橙色
             if (toolIcon.isEmpty() && progressText.isEmpty()) {
-                drawContext.drawText(client.textRenderer, nameText, textX, nameY, 0xFFE0E0E0, true); // 淡白色
+                drawContext.text(client.font, nameText, textX, nameY, 0xFFE0E0E0, true); // 淡白色
             } else {
                 // 分别绘制物品名称、工具图标和进度百分比
-                Text blockNameOnly = Text.literal(blockName);
-                drawContext.drawText(client.textRenderer, blockNameOnly, textX, nameY, 0xFFE0E0E0, true); // 淡白色
+                Component blockNameOnly = Component.literal(blockName);
+                drawContext.text(client.font, blockNameOnly, textX, nameY, 0xFFE0E0E0, true); // 淡白色
 
-                int currentX = textX + client.textRenderer.getWidth(blockNameOnly);
+                int currentX = textX + client.font.width(blockNameOnly);
 
                 // 绘制工具图标
                 if (!toolIcon.isEmpty()) {
-                    Text iconText = Text.literal(toolIcon);
+                    Component iconText = Component.literal(toolIcon);
                     int iconColor = toolIcon.contains("✓") ? 0xFF70C070 : 0xFFC07070; // 更淡的绿色和红色
-                    drawContext.drawText(client.textRenderer, iconText, currentX, nameY, iconColor, true);
-                    currentX += client.textRenderer.getWidth(iconText);
+                    drawContext.text(client.font, iconText, currentX, nameY, iconColor, true);
+                    currentX += client.font.width(iconText);
                 }
 
                 // 绘制进度百分比 并且不是0
                 if (!progressText.isEmpty() && preciseProgress > 0) {
-                    Text progressTextObj = Text.literal(progressText);
-                    drawContext.drawText(client.textRenderer, progressTextObj, currentX, nameY, 0xFFCC8800, true); // 淡橙色
+                    Component progressTextObj = Component.literal(progressText);
+                    drawContext.text(client.font, progressTextObj, currentX, nameY, 0xFFCC8800, true); // 淡橙色
                 }
             }
 
             // 坐标信息（淡青色）
-            drawContext.drawText(client.textRenderer, posText, textX, posY, 0xFF70C0C0, true); // 更淡的青色
+            drawContext.text(client.font, posText, textX, posY, 0xFF70C0C0, true); // 更淡的青色
         }
     }
 }
