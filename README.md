@@ -1,12 +1,13 @@
-1.21.5版本:
-gradle需要8.12以上版本
+26.1.2版本:
+gradle需要9.4.0以上版本
 建议gradle，jdk啥的都用最新版本
 
 ```properties
-minecraft_version=1.21.5
-yarn_mappings=1.21.5+build.1
-loader_version=0.16.10
-fabric_version=0.119.6+1.21.5
+minecraft_version=26.1.2
+loader_version=0.18.6
+loom_version=1.16-SNAPSHOT
+# Fabric API
+fabric_api_version=0.145.4+26.1.2
 ```
 
 # 我的世界信息显示GameInfo模组

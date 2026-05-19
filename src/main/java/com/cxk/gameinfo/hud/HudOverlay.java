@@ -2,6 +2,8 @@ package com.cxk.gameinfo.hud;
 
 import com.cxk.gameinfo.GameinfoClient;
 import com.cxk.gameinfo.config.GameInfoConfig;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement;
@@ -76,6 +78,7 @@ public class HudOverlay implements HudElement {
         // 左上角屏幕渲染
         yPos += renderFPS(drawContext, xPos, yPos);
         yPos += renderTimeAndDays(drawContext, xPos, yPos);
+        yPos += renderRealTime(drawContext, xPos, yPos);
         yPos += renderCoordinates(drawContext, xPos, yPos);
         yPos += renderNetherCoordinates(drawContext, xPos, yPos);
         yPos += renderBiome(drawContext, xPos, yPos);
@@ -171,11 +174,14 @@ public class HudOverlay implements HudElement {
         if (player == null) return 0;
         Level world = player.level();
 
-        long timeOfDay = world.getLevelData().getGameTime() % 24000;
+        // 使用 DayTime（昼夜循环时间）而不是 GameTime（总游戏刻），
+        // 以兼容新版中 /time query daytime/day 的语义。
+        long dayTime = world.getOverworldClockTime();
+        long timeOfDay = dayTime % 24000;
         // 时间为0的时候对应的是6:00
         int hours = (int) ((6 + (timeOfDay / 1000)) % 24);
         int minutes = (int) ((timeOfDay % 1000) * 60 / 1000);
-        int days = (int) (world.getLevelData().getGameTime() / 24000);
+        int days = (int) (dayTime / 24000);
         String daysText = "天数: ";
         drawContext.text(textRenderer, daysText, x, y, color, true);
         int width = textRenderer.width(daysText);
@@ -203,6 +209,23 @@ public class HudOverlay implements HudElement {
         String xyz = String.format("%d %d %d - %s", pos.getX(), pos.getY(), pos.getZ(), directionString);
         drawContext.text(textRenderer, xyz, x + width, y, DEFAULT_COLOR, true);
         return DEFAULT_HEIGHT;
+    }
+
+    private int renderRealTime(GuiGraphicsExtractor drawContext, int x, int y) {
+        if (!config.showRealTime) return 0;
+        LocalDateTime now = LocalDateTime.now();
+        String[] weekDays = {"星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"};
+        String weekDayText = weekDays[now.getDayOfWeek().getValue() - 1];
+        String labelText = "现实时间: ";
+        drawContext.text(textRenderer, labelText, x, y, color, true);
+
+        int labelWidth = textRenderer.width(labelText);
+        String dateText = now.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+        drawContext.text(textRenderer, dateText, x + labelWidth, y, DEFAULT_COLOR, true);
+
+        String timeText = now.format(DateTimeFormatter.ofPattern("HH:mm:ss")) + " " + weekDayText;
+        drawContext.text(textRenderer, timeText, x, y + DEFAULT_HEIGHT, DEFAULT_COLOR, true);
+        return DEFAULT_HEIGHT * 2;
     }
 
 

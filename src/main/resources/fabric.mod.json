@@ -3,10 +3,10 @@
   "id": "gameinfo",
   "version": "${version}",
   "name": "gameinfo",
-  "description": "信息显示[偏牧定制版]",
-  "authors": ["yunfei"],
+  "description": "Gameinfo-nhx9605",
+  "authors": ["nhx9605"],
   "contact": {
-    "repo": "无"
+    "repo": "Gameinfo是一个轻量化的信息显示模组，由nhx9605重置并修复bug"
   },
   "license": "All-Rights-Reserved",
   "icon": "assets/gameinfo/icon.png",
